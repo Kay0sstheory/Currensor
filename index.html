@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currensor — Currency Converter</title>
-    <meta name="description" content="A sleek currency converter. Compare up to 5 currencies at once, swap them around, search through 20+ options. One HTML file, zero setup.">
-    <meta name="keywords" content="currency converter, exchange rate, forex, money converter, free tool">
+    <meta name="description" content="A sleek currency converter. Compare up to 5 currencies at once with live exchange rates. One HTML file, zero setup.">
+    <meta name="keywords" content="currency converter, exchange rate, forex, money converter, free tool, live rates">
     <meta property="og:title" content="Currensor — Currency Converter">
-    <meta property="og:description" content="Convert between 20+ currencies instantly. Free, fast, no signup.">
+    <meta property="og:description" content="Convert between 50+ currencies instantly with live rates. Free, fast, no signup.">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#E8FF59">
 
@@ -19,14 +19,16 @@
         :root {
             --accent: #E8FF59;
             --accent-dim: rgba(232, 255, 89, 0.08);
-            --accent-glow: rgba(232, 255, 89, 0.12);
+            --accent-glow: rgba(232, 255, 89, 0.15);
             --bg: #0D0D0F;
             --card: #17171B;
             --card-border: #2A2A30;
+            --card-border-hover: rgba(232, 255, 89, 0.2);
             --text: #E8E8EC;
             --text-dim: #7A7A85;
             --input-bg: #222228;
             --red: #FF6B6B;
+            --green: #59E8A0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -36,10 +38,11 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 1.25rem;
+            padding: 2rem 1.25rem 3rem;
             overflow-x: hidden;
             position: relative;
         }
@@ -71,378 +74,102 @@
             animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateY(12px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
+        .header { text-align: center; margin-bottom: 2rem; }
+        .logo { font-family: 'Space Mono', monospace; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; }
         .logo span { color: var(--accent); }
+        .tagline { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; letter-spacing: 0.04em; }
 
-        .tagline {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            margin-top: 0.25rem;
-            letter-spacing: 0.04em;
-        }
+        .live-badge { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.6rem; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.06em; transition: color 0.3s; }
+        .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); transition: background 0.3s; }
+        .live-badge.active { color: var(--green); }
+        .live-badge.active .live-dot { background: var(--green); animation: pulse 2s ease-in-out infinite; }
+        .live-badge.error { color: var(--red); }
+        .live-badge.error .live-dot { background: var(--red); }
 
-        .source-section {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-        }
+        .source-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; }
+        .source-row { display: flex; gap: 0.75rem; align-items: center; }
 
-        .source-row {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .currency-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 0.7rem 0.9rem;
-            cursor: pointer;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            flex-shrink: 0;
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .currency-btn:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-
+        .currency-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.7rem 0.9rem; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; flex-shrink: 0; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; }
+        .currency-btn:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .currency-btn .flag { font-size: 1.2rem; }
-        .currency-btn .code {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-        .currency-btn .chevron {
-            color: var(--text-dim);
-            font-size: 0.65rem;
-            margin-left: 0.15rem;
-        }
+        .currency-btn .code { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; }
+        .currency-btn .chevron { color: var(--text-dim); font-size: 0.65rem; margin-left: 0.15rem; }
 
-        .amount-input {
-            flex: 1;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            color: var(--text);
-            font-family: 'Space Mono', monospace;
-            font-size: 1.35rem;
-            font-weight: 400;
-            padding: 0.6rem 0.85rem;
-            text-align: right;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            min-width: 0;
-        }
-
-        .amount-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-
+        .amount-input { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 400; padding: 0.6rem 0.85rem; text-align: right; transition: border-color 0.2s, box-shadow 0.2s; min-width: 0; }
+        .amount-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .amount-input::placeholder { color: var(--text-dim); }
 
-        .section-label {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.6rem;
-            font-weight: 500;
-        }
+        .section-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.6rem; font-weight: 500; }
 
-        .results-label {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.6rem;
-            font-weight: 500;
-        }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+        .results-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; }
+        .results-count { font-size: 0.6rem; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+        .results-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        .results-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        .result-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 0.9rem 1rem; display: flex; align-items: center; animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; transition: border-color 0.25s, box-shadow 0.25s; }
+        .result-card:hover { border-color: var(--card-border-hover); box-shadow: 0 2px 12px rgba(232, 255, 89, 0.03); }
 
-        .result-card {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-            transition: border-color 0.2s;
-        }
-
-        .result-card:hover {
-            border-color: rgba(232, 255, 89, 0.2);
-        }
-
-        .result-left {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            cursor: pointer;
-        }
-
+        .result-left { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex-shrink: 0; }
         .result-flag { font-size: 1.3rem; }
-
         .result-info { display: flex; flex-direction: column; }
+        .result-code { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; }
+        .result-name { font-size: 0.65rem; color: var(--text-dim); max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; margin-left: auto; }
+        .result-amount { font-family: 'Space Mono', monospace; font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+        .result-rate { font-size: 0.58rem; color: var(--text-dim); margin-top: 0.15rem; font-family: 'Space Mono', monospace; }
 
-        .result-code {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        .result-name {
-            font-size: 0.68rem;
-            color: var(--text-dim);
-        }
-
-        .result-right {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .result-amount {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .result-rate {
-            font-size: 0.62rem;
-            color: var(--text-dim);
-            margin-top: 0.15rem;
-        }
-
-        .result-remove {
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 0.2rem;
-            margin-left: 0.6rem;
-            opacity: 0;
-            transition: opacity 0.2s, color 0.2s;
-        }
-
+        .result-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; padding: 0.3rem; margin-left: 0.5rem; opacity: 0; transition: opacity 0.2s, color 0.2s; flex-shrink: 0; }
         .result-card:hover .result-remove { opacity: 1; }
         .result-remove:hover { color: var(--red); }
 
-        .add-btn {
-            width: 100%;
-            background: transparent;
-            border: 1px dashed var(--card-border);
-            border-radius: 12px;
-            padding: 0.7rem;
-            color: var(--text-dim);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: border-color 0.2s, color 0.2s;
-            margin-top: 0.5rem;
-        }
-
-        .add-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
+        .add-btn { width: 100%; background: transparent; border: 1px dashed var(--card-border); border-radius: 12px; padding: 0.7rem; color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-top: 0.5rem; }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
         .add-btn.hidden { display: none; }
 
-        .picker-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            z-index: 100;
-            -webkit-backdrop-filter: blur(4px);
-            backdrop-filter: blur(4px);
-        }
-
-        .picker-overlay.open {
-            display: flex;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .picker-sheet {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 18px 18px 0 0;
-            width: 100%;
-            max-width: 460px;
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .picker-header {
-            padding: 1.1rem 1.25rem 0.75rem;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .picker-handle {
-            width: 36px;
-            height: 4px;
-            background: var(--card-border);
-            border-radius: 2px;
-            margin: 0 auto 0.9rem;
-        }
-
-        .picker-search {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            padding: 0.7rem 0.9rem;
-            transition: border-color 0.2s;
-        }
-
-        .picker-search:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
+        .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 100; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+        .picker-overlay.open { display: flex; animation: fadeIn 0.2s ease-out; }
+        .picker-sheet { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px 18px 0 0; width: 100%; max-width: 460px; max-height: 75vh; display: flex; flex-direction: column; animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .picker-header { padding: 1.1rem 1.25rem 0.75rem; border-bottom: 1px solid var(--card-border); }
+        .picker-handle { width: 36px; height: 4px; background: var(--card-border); border-radius: 2px; margin: 0 auto 0.9rem; }
+        .picker-search { width: 100%; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 0.7rem 0.9rem; transition: border-color 0.2s; }
+        .picker-search:focus { outline: none; border-color: var(--accent); }
         .picker-search::placeholder { color: var(--text-dim); }
+        .picker-region { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; padding: 0.75rem 0.75rem 0.3rem; font-weight: 500; }
+        .picker-list { overflow-y: auto; padding: 0.5rem; flex: 1; -webkit-overflow-scrolling: touch; }
 
-        .picker-list {
-            overflow-y: auto;
-            padding: 0.5rem;
-            flex: 1;
-        }
-
-        .picker-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
+        .picker-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.75rem; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
         .picker-item:hover { background: var(--input-bg); }
-
-        .picker-item.disabled {
-            opacity: 0.35;
-            cursor: default;
-            pointer-events: none;
-        }
-
-        .picker-item .p-flag { font-size: 1.4rem; }
+        .picker-item.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+        .picker-item .p-flag { font-size: 1.3rem; }
         .picker-item .p-info { flex: 1; }
+        .picker-item .p-code { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 700; }
+        .picker-item .p-name { font-size: 0.68rem; color: var(--text-dim); }
+        .picker-item .p-badge { font-size: 0.58rem; color: var(--text-dim); background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 6px; }
 
-        .picker-item .p-code {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        .picker-item .p-name {
-            font-size: 0.72rem;
-            color: var(--text-dim);
-        }
-
-        .picker-item .p-badge {
-            font-size: 0.6rem;
-            color: var(--text-dim);
-            background: var(--bg);
-            padding: 0.2rem 0.5rem;
-            border-radius: 6px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-        }
-
-        .footer-text {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            letter-spacing: 0.03em;
-        }
-
-        .footer-text a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
+        .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; }
+        .footer-text { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.03em; }
+        .footer-text a { color: var(--accent); text-decoration: none; }
         .footer-text a:hover { text-decoration: underline; }
-
-        .status-bar {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .status-item {
-            font-size: 0.6rem;
-            color: var(--text-dim);
-        }
+        .footer-sub { font-size: 0.55rem; color: var(--text-dim); margin-top: 0.4rem; opacity: 0.6; }
 
         @media (max-width: 440px) {
+            body { padding: 1.5rem 1rem 3rem; }
             .logo { font-size: 1.5rem; }
-            .amount-input { font-size: 1.1rem; }
+            .amount-input { font-size: 1.15rem; }
             .result-amount { font-size: 1rem; }
+            .result-name { max-width: 80px; }
+            .source-section { padding: 1rem; }
+        }
+        @media (max-width: 360px) {
+            .currency-btn { padding: 0.6rem 0.7rem; }
+            .currency-btn .code { font-size: 0.8rem; }
+            .result-card { padding: 0.75rem 0.85rem; }
         }
     </style>
 </head>
@@ -451,6 +178,10 @@
         <div class="header">
             <div class="logo">Curren<span>$</span>or</div>
             <div class="tagline">Compare up to 5 currencies at once</div>
+            <div class="live-badge" id="liveBadge">
+                <span class="live-dot"></span>
+                <span id="liveText">Connecting…</span>
+            </div>
         </div>
 
         <div class="source-section">
@@ -465,20 +196,21 @@
             </div>
         </div>
 
-        <div class="results-label">To</div>
+        <div class="results-header">
+            <div class="results-label">To</div>
+            <div class="results-count" id="resultsCount">5 / 5</div>
+        </div>
         <div class="results-container" id="results"></div>
         <button class="add-btn" id="addBtn">+ Add currency</button>
 
         <div class="footer">
             <div class="footer-text">Built by <a href="https://github.com/Kay0sstheory" target="_blank">Kay0sstheory</a> — Powered by curiosity</div>
-            <div class="status-bar">
-                <span class="status-item" id="statusText">Rates: bundled</span>
-            </div>
+            <div class="footer-sub">v2.0 — Live rates refresh every 5 min</div>
         </div>
     </div>
 
     <div class="picker-overlay" id="pickerOverlay">
-        <div class="picker-sheet" id="pickerSheet">
+        <div class="picker-sheet">
             <div class="picker-header">
                 <div class="picker-handle"></div>
                 <input type="text" class="picker-search" id="pickerSearch" placeholder="Search currencies…">
@@ -489,65 +221,161 @@
 
     <script>
         const CURRENCIES = {
-            USD: { name: 'US Dollar',           symbol: '$',  flag: '🇺🇸' },
-            EUR: { name: 'Euro',                symbol: '€',  flag: '🇪🇺' },
-            GBP: { name: 'British Pound',       symbol: '£',  flag: '🇬🇧' },
-            JPY: { name: 'Japanese Yen',        symbol: '¥',  flag: '🇯🇵' },
-            CAD: { name: 'Canadian Dollar',     symbol: '$',  flag: '🇨🇦' },
-            AUD: { name: 'Australian Dollar',   symbol: '$',  flag: '🇦🇺' },
-            CHF: { name: 'Swiss Franc',         symbol: 'Fr', flag: '🇨🇭' },
-            CNY: { name: 'Chinese Yuan',        symbol: '¥',  flag: '🇨🇳' },
-            INR: { name: 'Indian Rupee',        symbol: '₹',  flag: '🇮🇳' },
-            MXN: { name: 'Mexican Peso',        symbol: '$',  flag: '🇲🇽' },
-            BRL: { name: 'Brazilian Real',      symbol: 'R$', flag: '🇧🇷' },
-            KRW: { name: 'South Korean Won',    symbol: '₩',  flag: '🇰🇷' },
-            SGD: { name: 'Singapore Dollar',    symbol: '$',  flag: '🇸🇬' },
-            SEK: { name: 'Swedish Krona',       symbol: 'kr', flag: '🇸🇪' },
-            NOK: { name: 'Norwegian Krone',     symbol: 'kr', flag: '🇳🇴' },
-            NZD: { name: 'New Zealand Dollar',  symbol: '$',  flag: '🇳🇿' },
-            ZAR: { name: 'South African Rand',  symbol: 'R',  flag: '🇿🇦' },
-            TRY: { name: 'Turkish Lira',        symbol: '₺',  flag: '🇹🇷' },
-            AED: { name: 'UAE Dirham',          symbol: 'د.إ',flag: '🇦🇪' },
-            THB: { name: 'Thai Baht',           symbol: '฿',  flag: '🇹🇭' },
+            USD:{name:'US Dollar',flag:'🇺🇸',region:'Americas'},
+            CAD:{name:'Canadian Dollar',flag:'🇨🇦',region:'Americas'},
+            MXN:{name:'Mexican Peso',flag:'🇲🇽',region:'Americas'},
+            BRL:{name:'Brazilian Real',flag:'🇧🇷',region:'Americas'},
+            ARS:{name:'Argentine Peso',flag:'🇦🇷',region:'Americas'},
+            CLP:{name:'Chilean Peso',flag:'🇨🇱',region:'Americas'},
+            COP:{name:'Colombian Peso',flag:'🇨🇴',region:'Americas'},
+            PEN:{name:'Peruvian Sol',flag:'🇵🇪',region:'Americas'},
+            EUR:{name:'Euro',flag:'🇪🇺',region:'Europe'},
+            GBP:{name:'British Pound',flag:'🇬🇧',region:'Europe'},
+            CHF:{name:'Swiss Franc',flag:'🇨🇭',region:'Europe'},
+            SEK:{name:'Swedish Krona',flag:'🇸🇪',region:'Europe'},
+            NOK:{name:'Norwegian Krone',flag:'🇳🇴',region:'Europe'},
+            DKK:{name:'Danish Krone',flag:'🇩🇰',region:'Europe'},
+            PLN:{name:'Polish Złoty',flag:'🇵🇱',region:'Europe'},
+            CZK:{name:'Czech Koruna',flag:'🇨🇿',region:'Europe'},
+            HUF:{name:'Hungarian Forint',flag:'🇭🇺',region:'Europe'},
+            RON:{name:'Romanian Leu',flag:'🇷🇴',region:'Europe'},
+            TRY:{name:'Turkish Lira',flag:'🇹🇷',region:'Europe'},
+            RUB:{name:'Russian Ruble',flag:'🇷🇺',region:'Europe'},
+            UAH:{name:'Ukrainian Hryvnia',flag:'🇺🇦',region:'Europe'},
+            ISK:{name:'Icelandic Króna',flag:'🇮🇸',region:'Europe'},
+            JPY:{name:'Japanese Yen',flag:'🇯🇵',region:'Asia & Pacific'},
+            CNY:{name:'Chinese Yuan',flag:'🇨🇳',region:'Asia & Pacific'},
+            INR:{name:'Indian Rupee',flag:'🇮🇳',region:'Asia & Pacific'},
+            KRW:{name:'South Korean Won',flag:'🇰🇷',region:'Asia & Pacific'},
+            SGD:{name:'Singapore Dollar',flag:'🇸🇬',region:'Asia & Pacific'},
+            HKD:{name:'Hong Kong Dollar',flag:'🇭🇰',region:'Asia & Pacific'},
+            TWD:{name:'Taiwan Dollar',flag:'🇹🇼',region:'Asia & Pacific'},
+            THB:{name:'Thai Baht',flag:'🇹🇭',region:'Asia & Pacific'},
+            MYR:{name:'Malaysian Ringgit',flag:'🇲🇾',region:'Asia & Pacific'},
+            IDR:{name:'Indonesian Rupiah',flag:'🇮🇩',region:'Asia & Pacific'},
+            PHP:{name:'Philippine Peso',flag:'🇵🇭',region:'Asia & Pacific'},
+            VND:{name:'Vietnamese Đồng',flag:'🇻🇳',region:'Asia & Pacific'},
+            PKR:{name:'Pakistani Rupee',flag:'🇵🇰',region:'Asia & Pacific'},
+            BDT:{name:'Bangladeshi Taka',flag:'🇧🇩',region:'Asia & Pacific'},
+            LKR:{name:'Sri Lankan Rupee',flag:'🇱🇰',region:'Asia & Pacific'},
+            AUD:{name:'Australian Dollar',flag:'🇦🇺',region:'Asia & Pacific'},
+            NZD:{name:'New Zealand Dollar',flag:'🇳🇿',region:'Asia & Pacific'},
+            AED:{name:'UAE Dirham',flag:'🇦🇪',region:'Middle East & Africa'},
+            SAR:{name:'Saudi Riyal',flag:'🇸🇦',region:'Middle East & Africa'},
+            QAR:{name:'Qatari Riyal',flag:'🇶🇦',region:'Middle East & Africa'},
+            KWD:{name:'Kuwaiti Dinar',flag:'🇰🇼',region:'Middle East & Africa'},
+            BHD:{name:'Bahraini Dinar',flag:'🇧🇭',region:'Middle East & Africa'},
+            ILS:{name:'Israeli Shekel',flag:'🇮🇱',region:'Middle East & Africa'},
+            EGP:{name:'Egyptian Pound',flag:'🇪🇬',region:'Middle East & Africa'},
+            ZAR:{name:'South African Rand',flag:'🇿🇦',region:'Middle East & Africa'},
+            NGN:{name:'Nigerian Naira',flag:'🇳🇬',region:'Middle East & Africa'},
+            KES:{name:'Kenyan Shilling',flag:'🇰🇪',region:'Middle East & Africa'},
+            MAD:{name:'Moroccan Dirham',flag:'🇲🇦',region:'Middle East & Africa'},
         };
 
-        const RATES_TO_USD = {
-            USD: 1, EUR: 0.92, GBP: 0.79, JPY: 149.5, CAD: 1.36,
-            AUD: 1.53, CHF: 0.88, CNY: 7.24, INR: 83.4, MXN: 17.15,
-            BRL: 4.97, KRW: 1320, SGD: 1.34, SEK: 10.42, NOK: 10.55,
-            NZD: 1.62, ZAR: 18.65, TRY: 30.2, AED: 3.67, THB: 35.1,
+        const ZERO_DECIMAL = new Set(['JPY','KRW','VND','IDR','CLP','HUF','ISK']);
+
+        const FALLBACK_RATES = {
+            USD:1,CAD:1.36,MXN:17.15,BRL:4.97,ARS:890,CLP:940,COP:3950,PEN:3.72,
+            EUR:0.92,GBP:0.79,CHF:0.88,SEK:10.42,NOK:10.55,DKK:6.88,PLN:4.02,
+            CZK:23.2,HUF:365,RON:4.59,TRY:30.2,RUB:92,UAH:38.5,ISK:137,
+            JPY:149.5,CNY:7.24,INR:83.4,KRW:1320,SGD:1.34,HKD:7.82,TWD:31.5,
+            THB:35.1,MYR:4.72,IDR:15650,PHP:56.2,VND:24500,PKR:280,BDT:110,
+            LKR:325,AUD:1.53,NZD:1.62,
+            AED:3.67,SAR:3.75,QAR:3.64,KWD:0.307,BHD:0.376,ILS:3.65,
+            EGP:30.9,ZAR:18.65,NGN:900,KES:153,MAD:10.05,
         };
 
         let fromCurrency = 'USD';
-        let targets = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD'];
+        let targets = ['EUR','GBP','JPY','CAD','INR'];
         let amount = '1000';
         let pickerMode = null;
+        let rates = { ...FALLBACK_RATES };
+        let ratesLive = false;
+        let lastUpdated = null;
 
         const $ = id => document.getElementById(id);
 
+        async function fetchRates() {
+            updateStatus('connecting');
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                if (data.result === 'success' && data.rates) {
+                    for (const code of Object.keys(CURRENCIES)) {
+                        if (data.rates[code]) rates[code] = data.rates[code];
+                    }
+                    rates.USD = 1;
+                    ratesLive = true;
+                    lastUpdated = new Date();
+                    updateStatus('live');
+                    render();
+                    return;
+                }
+            } catch (e) {}
+            try {
+                const res = await fetch('https://latest.currency-api.pages.dev/v1/currencies/usd.json');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                if (data.usd) {
+                    for (const code of Object.keys(CURRENCIES)) {
+                        const lc = code.toLowerCase();
+                        if (data.usd[lc]) rates[code] = data.usd[lc];
+                    }
+                    rates.USD = 1;
+                    ratesLive = true;
+                    lastUpdated = new Date();
+                    updateStatus('live');
+                    render();
+                    return;
+                }
+            } catch (e) {}
+            ratesLive = false;
+            updateStatus('fallback');
+            render();
+        }
+
+        function updateStatus(state) {
+            const badge = $('liveBadge');
+            const text = $('liveText');
+            badge.className = 'live-badge';
+            if (state === 'connecting') {
+                text.textContent = 'Connecting…';
+            } else if (state === 'live') {
+                badge.classList.add('active');
+                const time = lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                text.textContent = `Live rates · ${time}`;
+            } else {
+                badge.classList.add('error');
+                text.textContent = 'Bundled rates · API unavailable';
+            }
+        }
+
         function formatNum(num, code) {
             if (num === 0) return '0.00';
-            if (['JPY', 'KRW'].includes(code)) return Math.round(num).toLocaleString();
+            if (ZERO_DECIMAL.has(code)) return Math.round(num).toLocaleString();
             if (num >= 1000) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            return num.toFixed(4).replace(/0+$/, '').replace(/\.$/, '.00');
+            if (num >= 1) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+            return num.toFixed(6).replace(/0+$/, '').replace(/\.$/, '.00');
         }
 
         function convert(fromCode, toCode, amt) {
-            const fromRate = RATES_TO_USD[fromCode] || 1;
-            const toRate = RATES_TO_USD[toCode] || 1;
-            return amt * (toRate / fromRate);
+            return amt * ((rates[toCode] || 1) / (rates[fromCode] || 1));
         }
 
         function render() {
             const amt = parseFloat(amount) || 0;
             $('fromFlag').textContent = CURRENCIES[fromCurrency].flag;
             $('fromCode').textContent = fromCurrency;
+            $('resultsCount').textContent = `${targets.length} / 5`;
 
             const container = $('results');
             container.innerHTML = '';
 
             targets.forEach((code, i) => {
                 const cur = CURRENCIES[code];
+                if (!cur) return;
                 const converted = convert(fromCurrency, code, amt);
                 const unitRate = convert(fromCurrency, code, 1);
                 const showRemove = targets.length > 1;
@@ -555,7 +383,6 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.style.animationDelay = `${0.05 + i * 0.06}s`;
-
                 card.innerHTML = `
                     <div class="result-left" data-index="${i}">
                         <span class="result-flag">${cur.flag}</span>
@@ -570,25 +397,16 @@
                     </div>
                     ${showRemove ? `<button class="result-remove" data-remove="${i}" title="Remove">✕</button>` : ''}
                 `;
-
                 container.appendChild(card);
             });
 
             $('addBtn').classList.toggle('hidden', targets.length >= 5);
 
             container.querySelectorAll('.result-left').forEach(el => {
-                el.addEventListener('click', () => {
-                    pickerMode = parseInt(el.dataset.index);
-                    openPicker();
-                });
+                el.addEventListener('click', () => { pickerMode = parseInt(el.dataset.index); openPicker(); });
             });
-
             container.querySelectorAll('.result-remove').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    targets.splice(parseInt(el.dataset.remove), 1);
-                    render();
-                });
+                el.addEventListener('click', (e) => { e.stopPropagation(); targets.splice(parseInt(el.dataset.remove), 1); render(); });
             });
         }
 
@@ -604,108 +422,92 @@
             pickerMode = null;
         }
 
+        function createPickerItem(code, cur, inUse) {
+            const isInUse = inUse.includes(code);
+            const isCurrentSlot = (pickerMode === 'from' && code === fromCurrency) || (typeof pickerMode === 'number' && code === targets[pickerMode]);
+            const disabled = isInUse && !isCurrentSlot;
+            const item = document.createElement('div');
+            item.className = `picker-item${disabled ? ' disabled' : ''}`;
+            item.innerHTML = `
+                <span class="p-flag">${cur.flag}</span>
+                <div class="p-info"><div class="p-code">${code}</div><div class="p-name">${cur.name}</div></div>
+                ${disabled ? '<span class="p-badge">in use</span>' : ''}
+            `;
+            if (!disabled) item.addEventListener('click', () => selectCurrency(code));
+            return item;
+        }
+
         function renderPickerList(filter) {
             const list = $('pickerList');
             list.innerHTML = '';
             const inUse = [fromCurrency, ...targets];
             const q = filter.toLowerCase();
 
+            const grouped = {};
             Object.entries(CURRENCIES).forEach(([code, cur]) => {
                 if (q && !code.toLowerCase().includes(q) && !cur.name.toLowerCase().includes(q)) return;
-
-                const isInUse = inUse.includes(code);
-                const isCurrentSlot = (pickerMode === 'from' && code === fromCurrency) ||
-                    (typeof pickerMode === 'number' && code === targets[pickerMode]);
-                const disabled = isInUse && !isCurrentSlot;
-
-                const item = document.createElement('div');
-                item.className = `picker-item${disabled ? ' disabled' : ''}`;
-                item.innerHTML = `
-                    <span class="p-flag">${cur.flag}</span>
-                    <div class="p-info">
-                        <div class="p-code">${code}</div>
-                        <div class="p-name">${cur.name}</div>
-                    </div>
-                    ${disabled ? '<span class="p-badge">in use</span>' : ''}
-                `;
-
-                if (!disabled) {
-                    item.addEventListener('click', () => selectCurrency(code));
-                }
-
-                list.appendChild(item);
+                const region = cur.region;
+                if (!grouped[region]) grouped[region] = [];
+                grouped[region].push([code, cur]);
             });
+
+            if (q) {
+                Object.values(grouped).flat().forEach(([code, cur]) => list.appendChild(createPickerItem(code, cur, inUse)));
+            } else {
+                ['Americas','Europe','Asia & Pacific','Middle East & Africa'].forEach(region => {
+                    if (!grouped[region] || !grouped[region].length) return;
+                    const label = document.createElement('div');
+                    label.className = 'picker-region';
+                    label.textContent = region;
+                    list.appendChild(label);
+                    grouped[region].forEach(([code, cur]) => list.appendChild(createPickerItem(code, cur, inUse)));
+                });
+            }
         }
 
         function selectCurrency(code) {
             if (pickerMode === 'from') {
-                const targetIdx = targets.indexOf(code);
-                if (targetIdx !== -1) targets[targetIdx] = fromCurrency;
+                const idx = targets.indexOf(code);
+                if (idx !== -1) targets[idx] = fromCurrency;
                 fromCurrency = code;
             } else if (typeof pickerMode === 'number') {
                 const idx = pickerMode;
-                if (code === fromCurrency) {
-                    fromCurrency = targets[idx];
-                    targets[idx] = code;
-                } else {
-                    const otherIdx = targets.indexOf(code);
-                    if (otherIdx !== -1) targets[otherIdx] = targets[idx];
-                    targets[idx] = code;
-                }
+                if (code === fromCurrency) { fromCurrency = targets[idx]; targets[idx] = code; }
+                else { const oi = targets.indexOf(code); if (oi !== -1) targets[oi] = targets[idx]; targets[idx] = code; }
             }
             closePicker();
             render();
         }
 
         function filterAmountInput(value) {
-            let filtered = '';
-            let hasDecimal = false;
-            for (const ch of value) {
-                if (ch >= '0' && ch <= '9') {
-                    filtered += ch;
-                } else if (ch === '.' && !hasDecimal) {
-                    filtered += ch;
-                    hasDecimal = true;
-                }
-            }
-            return filtered;
+            let f = '', d = false;
+            for (const c of value) { if (c >= '0' && c <= '9') f += c; else if (c === '.' && !d) { f += c; d = true; } }
+            return f;
         }
 
         $('amount').addEventListener('input', (e) => {
-            const filtered = filterAmountInput(e.target.value);
-            if (filtered !== e.target.value) e.target.value = filtered;
-            amount = filtered;
+            const f = filterAmountInput(e.target.value);
+            if (f !== e.target.value) e.target.value = f;
+            amount = f;
             render();
         });
 
-        $('fromBtn').addEventListener('click', () => {
-            pickerMode = 'from';
-            openPicker();
-        });
+        $('fromBtn').addEventListener('click', () => { pickerMode = 'from'; openPicker(); });
 
         $('addBtn').addEventListener('click', () => {
             if (targets.length >= 5) return;
             const inUse = new Set([fromCurrency, ...targets]);
             const available = Object.keys(CURRENCIES).find(c => !inUse.has(c));
-            if (available) {
-                targets.push(available);
-                render();
-            }
+            if (available) { targets.push(available); render(); }
         });
 
-        $('pickerOverlay').addEventListener('click', (e) => {
-            if (e.target === $('pickerOverlay')) closePicker();
-        });
-
-        $('pickerSearch').addEventListener('input', (e) => {
-            renderPickerList(e.target.value);
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closePicker();
-        });
+        $('pickerOverlay').addEventListener('click', (e) => { if (e.target === $('pickerOverlay')) closePicker(); });
+        $('pickerSearch').addEventListener('input', (e) => renderPickerList(e.target.value));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicker(); });
 
         render();
+        fetchRates();
+        setInterval(fetchRates, 5 * 60 * 1000);
     </script>
 </body>
 </html>
