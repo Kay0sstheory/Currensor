@@ -35,8 +35,11 @@ Already live at **[kay0sstheory.github.io/Currensor](https://kay0sstheory.github
 ## Supported Currencies
 
 **Americas:** USD, CAD, MXN, BRL, ARS, CLP, COP, PEN
+
 **Europe:** EUR, GBP, CHF, SEK, NOK, DKK, PLN, CZK, HUF, RON, TRY, RUB, UAH, ISK
+
 **Asia & Pacific:** JPY, CNY, INR, KRW, SGD, HKD, TWD, THB, MYR, IDR, PHP, VND, PKR, BDT, LKR, AUD, NZD
+
 **Middle East & Africa:** AED, SAR, QAR, KWD, BHD, ILS, EGP, ZAR, NGN, KES, MAD
 
 ## Tech Stack
