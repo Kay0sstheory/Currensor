@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currensor — Currency Converter</title>
+    <meta name="description" content="A sleek currency converter. Compare up to 5 currencies at once, swap them around, search through 20+ options. One HTML file, zero setup.">
+    <meta name="keywords" content="currency converter, exchange rate, forex, money converter, free tool">
+    <meta property="og:title" content="Currensor — Currency Converter">
+    <meta property="og:description" content="Convert between 20+ currencies instantly. Free, fast, no signup.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#E8FF59">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #E8FF59;
+            --accent-dim: rgba(232, 255, 89, 0.08);
+            --accent-glow: rgba(232, 255, 89, 0.12);
+            --bg: #0D0D0F;
+            --card: #17171B;
+            --card-border: #2A2A30;
+            --text: #E8E8EC;
+            --text-dim: #7A7A85;
+            --input-bg: #222228;
+            --red: #FF6B6B;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1.25rem;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -25%;
+            right: -15%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(232, 255, 89, 0.04) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 460px;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .tagline {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+            letter-spacing: 0.04em;
+        }
+
+        .source-section {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .source-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .currency-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .currency-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .currency-btn .flag { font-size: 1.2rem; }
+        .currency-btn .code {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .currency-btn .chevron {
+            color: var(--text-dim);
+            font-size: 0.65rem;
+            margin-left: 0.15rem;
+        }
+
+        .amount-input {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            font-size: 1.35rem;
+            font-weight: 400;
+            padding: 0.6rem 0.85rem;
+            text-align: right;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 0;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .amount-input::placeholder { color: var(--text-dim); }
+
+        .section-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+        }
+
+        .results-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+        }
+
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .result-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+            transition: border-color 0.2s;
+        }
+
+        .result-card:hover {
+            border-color: rgba(232, 255, 89, 0.2);
+        }
+
+        .result-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+        }
+
+        .result-flag { font-size: 1.3rem; }
+
+        .result-info { display: flex; flex-direction: column; }
+
+        .result-code {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .result-name {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+        }
+
+        .result-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .result-amount {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .result-rate {
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .result-remove {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.2rem;
+            margin-left: 0.6rem;
+            opacity: 0;
+            transition: opacity 0.2s, color 0.2s;
+        }
+
+        .result-card:hover .result-remove { opacity: 1; }
+        .result-remove:hover { color: var(--red); }
+
+        .add-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px dashed var(--card-border);
+            border-radius: 12px;
+            padding: 0.7rem;
+            color: var(--text-dim);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .add-btn.hidden { display: none; }
+
+        .picker-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 100;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .picker-overlay.open {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .picker-sheet {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 18px 18px 0 0;
+            width: 100%;
+            max-width: 460px;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .picker-header {
+            padding: 1.1rem 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .picker-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--card-border);
+            border-radius: 2px;
+            margin: 0 auto 0.9rem;
+        }
+
+        .picker-search {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.7rem 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .picker-search:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .picker-search::placeholder { color: var(--text-dim); }
+
+        .picker-list {
+            overflow-y: auto;
+            padding: 0.5rem;
+            flex: 1;
+        }
+
+        .picker-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .picker-item:hover { background: var(--input-bg); }
+
+        .picker-item.disabled {
+            opacity: 0.35;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .picker-item .p-flag { font-size: 1.4rem; }
+        .picker-item .p-info { flex: 1; }
+
+        .picker-item .p-code {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .picker-item .p-name {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+        }
+
+        .picker-item .p-badge {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            background: var(--bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .footer-text {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.03em;
+        }
+
+        .footer-text a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer-text a:hover { text-decoration: underline; }
+
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-item {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 440px) {
+            .logo { font-size: 1.5rem; }
+            .amount-input { font-size: 1.1rem; }
+            .result-amount { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="logo">Curren<span>$</span>or</div>
+            <div class="tagline">Compare up to 5 currencies at once</div>
+        </div>
+
+        <div class="source-section">
+            <div class="section-label">From</div>
+            <div class="source-row">
+                <button class="currency-btn" id="fromBtn">
+                    <span class="flag" id="fromFlag">🇺🇸</span>
+                    <span class="code" id="fromCode">USD</span>
+                    <span class="chevron">▾</span>
+                </button>
+                <input type="text" class="amount-input" id="amount" value="1000" inputmode="decimal" placeholder="0.00">
+            </div>
+        </div>
+
+        <div class="results-label">To</div>
+        <div class="results-container" id="results"></div>
+        <button class="add-btn" id="addBtn">+ Add currency</button>
+
+        <div class="footer">
+            <div class="footer-text">Built by <a href="https://github.com/Kay0sstheory" target="_blank">Kay0sstheory</a> — Powered by curiosity</div>
+            <div class="status-bar">
+                <span class="status-item" id="statusText">Rates: bundled</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="picker-overlay" id="pickerOverlay">
+        <div class="picker-sheet" id="pickerSheet">
+            <div class="picker-header">
+                <div class="picker-handle"></div>
+                <input type="text" class="picker-search" id="pickerSearch" placeholder="Search currencies…">
+            </div>
+            <div class="picker-list" id="pickerList"></div>
+        </div>
+    </div>
+
+    <script>
+        const CURRENCIES = {
+            USD: { name: 'US Dollar',           symbol: '$',  flag: '🇺🇸' },
+            EUR: { name: 'Euro',                symbol: '€',  flag: '🇪🇺' },
+            GBP: { name: 'British Pound',       symbol: '£',  flag: '🇬🇧' },
+            JPY: { name: 'Japanese Yen',        symbol: '¥',  flag: '🇯🇵' },
+            CAD: { name: 'Canadian Dollar',     symbol: '$',  flag: '🇨🇦' },
+            AUD: { name: 'Australian Dollar',   symbol: '$',  flag: '🇦🇺' },
+            CHF: { name: 'Swiss Franc',         symbol: 'Fr', flag: '🇨🇭' },
+            CNY: { name: 'Chinese Yuan',        symbol: '¥',  flag: '🇨🇳' },
+            INR: { name: 'Indian Rupee',        symbol: '₹',  flag: '🇮🇳' },
+            MXN: { name: 'Mexican Peso',        symbol: '$',  flag: '🇲🇽' },
+            BRL: { name: 'Brazilian Real',      symbol: 'R$', flag: '🇧🇷' },
+            KRW: { name: 'South Korean Won',    symbol: '₩',  flag: '🇰🇷' },
+            SGD: { name: 'Singapore Dollar',    symbol: '$',  flag: '🇸🇬' },
+            SEK: { name: 'Swedish Krona',       symbol: 'kr', flag: '🇸🇪' },
+            NOK: { name: 'Norwegian Krone',     symbol: 'kr', flag: '🇳🇴' },
+            NZD: { name: 'New Zealand Dollar',  symbol: '$',  flag: '🇳🇿' },
+            ZAR: { name: 'South African Rand',  symbol: 'R',  flag: '🇿🇦' },
+            TRY: { name: 'Turkish Lira',        symbol: '₺',  flag: '🇹🇷' },
+            AED: { name: 'UAE Dirham',          symbol: 'د.إ',flag: '🇦🇪' },
+            THB: { name: 'Thai Baht',           symbol: '฿',  flag: '🇹🇭' },
+        };
+
+        const RATES_TO_USD = {
+            USD: 1, EUR: 0.92, GBP: 0.79, JPY: 149.5, CAD: 1.36,
+            AUD: 1.53, CHF: 0.88, CNY: 7.24, INR: 83.4, MXN: 17.15,
+            BRL: 4.97, KRW: 1320, SGD: 1.34, SEK: 10.42, NOK: 10.55,
+            NZD: 1.62, ZAR: 18.65, TRY: 30.2, AED: 3.67, THB: 35.1,
+        };
+
+        let fromCurrency = 'USD';
+        let targets = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD'];
+        let amount = '1000';
+        let pickerMode = null;
+
+        const $ = id => document.getElementById(id);
+
+        function formatNum(num, code) {
+            if (num === 0) return '0.00';
+            if (['JPY', 'KRW'].includes(code)) return Math.round(num).toLocaleString();
+            if (num >= 1000) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return num.toFixed(4).replace(/0+$/, '').replace(/\.$/, '.00');
+        }
+
+        function convert(fromCode, toCode, amt) {
+            const fromRate = RATES_TO_USD[fromCode] || 1;
+            const toRate = RATES_TO_USD[toCode] || 1;
+            return amt * (toRate / fromRate);
+        }
+
+        function render() {
+            const amt = parseFloat(amount) || 0;
+            $('fromFlag').textContent = CURRENCIES[fromCurrency].flag;
+            $('fromCode').textContent = fromCurrency;
+
+            const container = $('results');
+            container.innerHTML = '';
+
+            targets.forEach((code, i) => {
+                const cur = CURRENCIES[code];
+                const converted = convert(fromCurrency, code, amt);
+                const unitRate = convert(fromCurrency, code, 1);
+                const showRemove = targets.length > 1;
+
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.style.animationDelay = `${0.05 + i * 0.06}s`;
+
+                card.innerHTML = `
+                    <div class="result-left" data-index="${i}">
+                        <span class="result-flag">${cur.flag}</span>
+                        <div class="result-info">
+                            <span class="result-code">${code}</span>
+                            <span class="result-name">${cur.name}</span>
+                        </div>
+                    </div>
+                    <div class="result-right">
+                        <span class="result-amount">${amt > 0 ? formatNum(converted, code) : '—'}</span>
+                        <span class="result-rate">1 ${fromCurrency} = ${formatNum(unitRate, code)} ${code}</span>
+                    </div>
+                    ${showRemove ? `<button class="result-remove" data-remove="${i}" title="Remove">✕</button>` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+
+            $('addBtn').classList.toggle('hidden', targets.length >= 5);
+
+            container.querySelectorAll('.result-left').forEach(el => {
+                el.addEventListener('click', () => {
+                    pickerMode = parseInt(el.dataset.index);
+                    openPicker();
+                });
+            });
+
+            container.querySelectorAll('.result-remove').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    targets.splice(parseInt(el.dataset.remove), 1);
+                    render();
+                });
+            });
+        }
+
+        function openPicker() {
+            $('pickerOverlay').classList.add('open');
+            $('pickerSearch').value = '';
+            renderPickerList('');
+            setTimeout(() => $('pickerSearch').focus(), 100);
+        }
+
+        function closePicker() {
+            $('pickerOverlay').classList.remove('open');
+            pickerMode = null;
+        }
+
+        function renderPickerList(filter) {
+            const list = $('pickerList');
+            list.innerHTML = '';
+            const inUse = [fromCurrency, ...targets];
+            const q = filter.toLowerCase();
+
+            Object.entries(CURRENCIES).forEach(([code, cur]) => {
+                if (q && !code.toLowerCase().includes(q) && !cur.name.toLowerCase().includes(q)) return;
+
+                const isInUse = inUse.includes(code);
+                const isCurrentSlot = (pickerMode === 'from' && code === fromCurrency) ||
+                    (typeof pickerMode === 'number' && code === targets[pickerMode]);
+                const disabled = isInUse && !isCurrentSlot;
+
+                const item = document.createElement('div');
+                item.className = `picker-item${disabled ? ' disabled' : ''}`;
+                item.innerHTML = `
+                    <span class="p-flag">${cur.flag}</span>
+                    <div class="p-info">
+                        <div class="p-code">${code}</div>
+                        <div class="p-name">${cur.name}</div>
+                    </div>
+                    ${disabled ? '<span class="p-badge">in use</span>' : ''}
+                `;
+
+                if (!disabled) {
+                    item.addEventListener('click', () => selectCurrency(code));
+                }
+
+                list.appendChild(item);
+            });
+        }
+
+        function selectCurrency(code) {
+            if (pickerMode === 'from') {
+                const targetIdx = targets.indexOf(code);
+                if (targetIdx !== -1) targets[targetIdx] = fromCurrency;
+                fromCurrency = code;
+            } else if (typeof pickerMode === 'number') {
+                const idx = pickerMode;
+                if (code === fromCurrency) {
+                    fromCurrency = targets[idx];
+                    targets[idx] = code;
+                } else {
+                    const otherIdx = targets.indexOf(code);
+                    if (otherIdx !== -1) targets[otherIdx] = targets[idx];
+                    targets[idx] = code;
+                }
+            }
+            closePicker();
+            render();
+        }
+
+        function filterAmountInput(value) {
+            let filtered = '';
+            let hasDecimal = false;
+            for (const ch of value) {
+                if (ch >= '0' && ch <= '9') {
+                    filtered += ch;
+                } else if (ch === '.' && !hasDecimal) {
+                    filtered += ch;
+                    hasDecimal = true;
+                }
+            }
+            return filtered;
+        }
+
+        $('amount').addEventListener('input', (e) => {
+            const filtered = filterAmountInput(e.target.value);
+            if (filtered !== e.target.value) e.target.value = filtered;
+            amount = filtered;
+            render();
+        });
+
+        $('fromBtn').addEventListener('click', () => {
+            pickerMode = 'from';
+            openPicker();
+        });
+
+        $('addBtn').addEventListener('click', () => {
+            if (targets.length >= 5) return;
+            const inUse = new Set([fromCurrency, ...targets]);
+            const available = Object.keys(CURRENCIES).find(c => !inUse.has(c));
+            if (available) {
+                targets.push(available);
+                render();
+            }
+        });
+
+        $('pickerOverlay').addEventListener('click', (e) => {
+            if (e.target === $('pickerOverlay')) closePicker();
+        });
+
+        $('pickerSearch').addEventListener('input', (e) => {
+            renderPickerList(e.target.value);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePicker();
+        });
+
+        render();
+    </script>
+</body>
+</html>
