@@ -9,7 +9,7 @@
     <meta property="og:title" content="Currensor — Currency Converter">
     <meta property="og:description" content="Convert between 50+ currencies instantly with live rates. Free, fast, no signup.">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#E8FF59">
+    <meta name="theme-color" content="#E8FF59" id="metaTheme">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,7 @@
 
     <style>
         :root {
+            /* Dark theme (default — trading terminal) */
             --accent: #E8FF59;
             --accent-dim: rgba(232, 255, 89, 0.08);
             --accent-glow: rgba(232, 255, 89, 0.15);
@@ -29,6 +30,32 @@
             --input-bg: #222228;
             --red: #FF6B6B;
             --green: #59E8A0;
+            --noise-opacity: 0.03;
+            --glow-opacity: 0.04;
+            --share-bg: #17171B;
+            --share-text: #E8E8EC;
+            --share-accent: #E8FF59;
+        }
+
+        [data-theme="light"] {
+            /* Light theme (clean travel app) */
+            --accent: #1A6B3C;
+            --accent-dim: rgba(26, 107, 60, 0.08);
+            --accent-glow: rgba(26, 107, 60, 0.1);
+            --bg: #F5F3EF;
+            --card: #FFFFFF;
+            --card-border: #E2DFD8;
+            --card-border-hover: rgba(26, 107, 60, 0.3);
+            --text: #1A1A1E;
+            --text-dim: #8A8780;
+            --input-bg: #EDEAE4;
+            --red: #D94040;
+            --green: #1A6B3C;
+            --noise-opacity: 0.015;
+            --glow-opacity: 0;
+            --share-bg: #FFFFFF;
+            --share-text: #1A1A1E;
+            --share-accent: #1A6B3C;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,16 +72,18 @@
             padding: 2rem 1.25rem 3rem;
             overflow-x: hidden;
             position: relative;
+            transition: background 0.4s, color 0.4s;
         }
 
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            opacity: 0.03;
+            opacity: var(--noise-opacity);
             pointer-events: none;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             background-size: 256px 256px;
+            transition: opacity 0.4s;
         }
 
         body::after {
@@ -64,8 +93,9 @@
             right: -15%;
             width: 60%;
             height: 60%;
-            background: radial-gradient(ellipse, rgba(232, 255, 89, 0.04) 0%, transparent 65%);
+            background: radial-gradient(ellipse, rgba(232, 255, 89, var(--glow-opacity)) 0%, transparent 65%);
             pointer-events: none;
+            transition: opacity 0.4s;
         }
 
         .app {
@@ -79,59 +109,99 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+        /* ── Header ── */
         .header { text-align: center; margin-bottom: 2rem; }
         .logo { font-family: 'Space Mono', monospace; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; }
         .logo span { color: var(--accent); }
         .tagline { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; letter-spacing: 0.04em; }
 
-        .live-badge { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.6rem; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.06em; transition: color 0.3s; }
+        .header-controls { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 0.6rem; }
+
+        .live-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.06em; transition: color 0.3s; }
         .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); transition: background 0.3s; }
         .live-badge.active { color: var(--green); }
         .live-badge.active .live-dot { background: var(--green); animation: pulse 2s ease-in-out infinite; }
         .live-badge.error { color: var(--red); }
         .live-badge.error .live-dot { background: var(--red); }
 
-        .source-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; }
+        .theme-toggle { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.85rem; line-height: 1; transition: border-color 0.2s, background 0.3s; color: var(--text); }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .sound-toggle { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.85rem; line-height: 1; transition: border-color 0.2s, background 0.3s, opacity 0.2s; color: var(--text); }
+        .sound-toggle:hover { border-color: var(--accent); }
+        .sound-toggle.muted { opacity: 0.4; }
+
+        /* ── Source Section ── */
+        .source-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; transition: background 0.4s, border-color 0.4s; }
         .source-row { display: flex; gap: 0.75rem; align-items: center; }
 
-        .currency-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.7rem 0.9rem; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; flex-shrink: 0; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; }
+        .currency-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.7rem 0.9rem; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s, background 0.4s; flex-shrink: 0; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; }
         .currency-btn:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-        .currency-btn .flag { font-size: 1.2rem; }
+        .currency-btn .flag { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; }
         .currency-btn .code { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; }
         .currency-btn .chevron { color: var(--text-dim); font-size: 0.65rem; margin-left: 0.15rem; }
 
-        .amount-input { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 400; padding: 0.6rem 0.85rem; text-align: right; transition: border-color 0.2s, box-shadow 0.2s; min-width: 0; }
+        .amount-input { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 1.35rem; font-weight: 400; padding: 0.6rem 0.85rem; text-align: right; transition: border-color 0.2s, box-shadow 0.2s, background 0.4s; min-width: 0; }
         .amount-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .amount-input::placeholder { color: var(--text-dim); }
 
         .section-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.6rem; font-weight: 500; }
 
+        /* ── Results ── */
         .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
         .results-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; }
         .results-count { font-size: 0.6rem; color: var(--text-dim); font-family: 'Space Mono', monospace; }
         .results-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        .result-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 0.9rem 1rem; display: flex; align-items: center; animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; transition: border-color 0.25s, box-shadow 0.25s; }
+        .result-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 0.9rem 1rem; display: flex; align-items: center; animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s, opacity 0.2s, background 0.4s; user-select: none; }
         .result-card:hover { border-color: var(--card-border-hover); box-shadow: 0 2px 12px rgba(232, 255, 89, 0.03); }
+        .result-card.dragging { opacity: 0.5; transform: scale(0.97); }
+        .result-card.drag-over-above { border-top: 2px solid var(--accent); margin-top: -1px; }
+        .result-card.drag-over-below { border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
+
+        .drag-handle { cursor: grab; padding: 0.2rem 0.4rem 0.2rem 0; color: var(--text-dim); font-size: 0.75rem; flex-shrink: 0; opacity: 0.4; transition: opacity 0.2s; letter-spacing: 0.05em; }
+        .result-card:hover .drag-handle { opacity: 0.8; }
+        .drag-handle:active { cursor: grabbing; }
 
         .result-left { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex-shrink: 0; }
-        .result-flag { font-size: 1.3rem; }
+        .result-flag { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }
         .result-info { display: flex; flex-direction: column; }
         .result-code { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; }
         .result-name { font-size: 0.65rem; color: var(--text-dim); max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .result-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; margin-left: auto; }
         .result-amount { font-family: 'Space Mono', monospace; font-size: 1.15rem; font-weight: 700; color: var(--accent); }
-        .result-rate { font-size: 0.58rem; color: var(--text-dim); margin-top: 0.15rem; font-family: 'Space Mono', monospace; }
+        .result-rate { font-size: 0.68rem; color: var(--text-dim); margin-top: 0.2rem; font-family: 'Space Mono', monospace; }
 
         .result-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; padding: 0.3rem; margin-left: 0.5rem; opacity: 0; transition: opacity 0.2s, color 0.2s; flex-shrink: 0; }
         .result-card:hover .result-remove { opacity: 1; }
         .result-remove:hover { color: var(--red); }
 
+        /* ── Action Bar ── */
+        .action-bar { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+        .action-btn { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.6rem; color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.4s; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+        .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .action-btn .action-icon { font-size: 0.9rem; }
+        .action-btn.copied { color: var(--green); border-color: var(--green); }
+
         .add-btn { width: 100%; background: transparent; border: 1px dashed var(--card-border); border-radius: 12px; padding: 0.7rem; color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-top: 0.5rem; }
         .add-btn:hover { border-color: var(--accent); color: var(--accent); }
         .add-btn.hidden { display: none; }
 
+        /* ── Share Preview Modal ── */
+        .share-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 200; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+        .share-overlay.open { display: flex; animation: fadeIn 0.2s ease-out; }
+        .share-modal { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 380px; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .share-title { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: center; }
+        .share-canvas-wrap { border-radius: 10px; overflow: hidden; margin-bottom: 1rem; }
+        .share-canvas-wrap canvas { width: 100%; height: auto; display: block; }
+        .share-actions { display: flex; gap: 0.5rem; }
+        .share-action-btn { flex: 1; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 0.65rem; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s; text-align: center; }
+        .share-action-btn:hover { border-color: var(--accent); }
+        .share-action-btn.primary { background: var(--accent); color: #0D0D0F; border-color: var(--accent); font-weight: 700; }
+
+        /* ── Picker ── */
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 100; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
         .picker-overlay.open { display: flex; animation: fadeIn 0.2s ease-out; }
         .picker-sheet { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px 18px 0 0; width: 100%; max-width: 460px; max-height: 75vh; display: flex; flex-direction: column; animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -146,18 +216,20 @@
         .picker-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.75rem; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
         .picker-item:hover { background: var(--input-bg); }
         .picker-item.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
-        .picker-item .p-flag { font-size: 1.3rem; }
+        .picker-item .p-flag { width: 24px; height: 24px; object-fit: contain; }
         .picker-item .p-info { flex: 1; }
         .picker-item .p-code { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 700; }
         .picker-item .p-name { font-size: 0.68rem; color: var(--text-dim); }
         .picker-item .p-badge { font-size: 0.58rem; color: var(--text-dim); background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 6px; }
 
+        /* ── Footer ── */
         .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; }
         .footer-text { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.03em; }
         .footer-text a { color: var(--accent); text-decoration: none; }
         .footer-text a:hover { text-decoration: underline; }
         .footer-sub { font-size: 0.55rem; color: var(--text-dim); margin-top: 0.4rem; opacity: 0.6; }
 
+        /* ── Responsive ── */
         @media (max-width: 440px) {
             body { padding: 1.5rem 1rem 3rem; }
             .logo { font-size: 1.5rem; }
@@ -178,9 +250,13 @@
         <div class="header">
             <div class="logo">Curren<span>$</span>or</div>
             <div class="tagline">Compare up to 5 currencies at once</div>
-            <div class="live-badge" id="liveBadge">
-                <span class="live-dot"></span>
-                <span id="liveText">Connecting…</span>
+            <div class="header-controls">
+                <div class="live-badge" id="liveBadge">
+                    <span class="live-dot"></span>
+                    <span id="liveText">Connecting…</span>
+                </div>
+                <button class="sound-toggle" id="soundToggle" title="Toggle sounds">🔊</button>
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme">☀️</button>
             </div>
         </div>
 
@@ -188,11 +264,11 @@
             <div class="section-label">From</div>
             <div class="source-row">
                 <button class="currency-btn" id="fromBtn">
-                    <span class="flag" id="fromFlag">🇺🇸</span>
+                    <img class="flag" id="fromFlag" src="" alt="">
                     <span class="code" id="fromCode">USD</span>
                     <span class="chevron">▾</span>
                 </button>
-                <input type="text" class="amount-input" id="amount" value="1000" inputmode="decimal" placeholder="0.00">
+                <input type="text" class="amount-input" id="amount" value="1" inputmode="decimal" placeholder="0.00">
             </div>
         </div>
 
@@ -203,12 +279,18 @@
         <div class="results-container" id="results"></div>
         <button class="add-btn" id="addBtn">+ Add currency</button>
 
+        <div class="action-bar">
+            <button class="action-btn" id="copyBtn"><span class="action-icon">📋</span> Copy</button>
+            <button class="action-btn" id="shareBtn"><span class="action-icon">🎴</span> Share Card</button>
+        </div>
+
         <div class="footer">
             <div class="footer-text">Built by <a href="https://github.com/Kay0sstheory" target="_blank">Kay0sstheory</a> — Powered by curiosity</div>
-            <div class="footer-sub">v2.0 — Live rates refresh every 5 min</div>
+            <div class="footer-sub">v2.1 — Live rates refresh every 5 min</div>
         </div>
     </div>
 
+    <!-- Picker -->
     <div class="picker-overlay" id="pickerOverlay">
         <div class="picker-sheet">
             <div class="picker-header">
@@ -219,58 +301,79 @@
         </div>
     </div>
 
+    <!-- Share Modal -->
+    <div class="share-overlay" id="shareOverlay">
+        <div class="share-modal">
+            <div class="share-title">Share Conversion</div>
+            <div class="share-canvas-wrap"><canvas id="shareCanvas" width="600" height="400"></canvas></div>
+            <div class="share-actions">
+                <button class="share-action-btn" id="shareClose">Close</button>
+                <button class="share-action-btn primary" id="shareDownload">Download</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ── Twemoji ──
+        const TWEMOJI_BASE = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/';
+        function flagToImg(emoji) {
+            const cp = [];
+            for (const char of emoji) cp.push(char.codePointAt(0).toString(16));
+            return TWEMOJI_BASE + cp.join('-') + '.png';
+        }
+
+        // ── Currency Data ──
         const CURRENCIES = {
-            USD:{name:'US Dollar',flag:'🇺🇸',region:'Americas'},
-            CAD:{name:'Canadian Dollar',flag:'🇨🇦',region:'Americas'},
-            MXN:{name:'Mexican Peso',flag:'🇲🇽',region:'Americas'},
-            BRL:{name:'Brazilian Real',flag:'🇧🇷',region:'Americas'},
-            ARS:{name:'Argentine Peso',flag:'🇦🇷',region:'Americas'},
-            CLP:{name:'Chilean Peso',flag:'🇨🇱',region:'Americas'},
-            COP:{name:'Colombian Peso',flag:'🇨🇴',region:'Americas'},
-            PEN:{name:'Peruvian Sol',flag:'🇵🇪',region:'Americas'},
-            EUR:{name:'Euro',flag:'🇪🇺',region:'Europe'},
-            GBP:{name:'British Pound',flag:'🇬🇧',region:'Europe'},
-            CHF:{name:'Swiss Franc',flag:'🇨🇭',region:'Europe'},
-            SEK:{name:'Swedish Krona',flag:'🇸🇪',region:'Europe'},
-            NOK:{name:'Norwegian Krone',flag:'🇳🇴',region:'Europe'},
-            DKK:{name:'Danish Krone',flag:'🇩🇰',region:'Europe'},
-            PLN:{name:'Polish Złoty',flag:'🇵🇱',region:'Europe'},
-            CZK:{name:'Czech Koruna',flag:'🇨🇿',region:'Europe'},
-            HUF:{name:'Hungarian Forint',flag:'🇭🇺',region:'Europe'},
-            RON:{name:'Romanian Leu',flag:'🇷🇴',region:'Europe'},
-            TRY:{name:'Turkish Lira',flag:'🇹🇷',region:'Europe'},
-            RUB:{name:'Russian Ruble',flag:'🇷🇺',region:'Europe'},
-            UAH:{name:'Ukrainian Hryvnia',flag:'🇺🇦',region:'Europe'},
-            ISK:{name:'Icelandic Króna',flag:'🇮🇸',region:'Europe'},
-            JPY:{name:'Japanese Yen',flag:'🇯🇵',region:'Asia & Pacific'},
-            CNY:{name:'Chinese Yuan',flag:'🇨🇳',region:'Asia & Pacific'},
-            INR:{name:'Indian Rupee',flag:'🇮🇳',region:'Asia & Pacific'},
-            KRW:{name:'South Korean Won',flag:'🇰🇷',region:'Asia & Pacific'},
-            SGD:{name:'Singapore Dollar',flag:'🇸🇬',region:'Asia & Pacific'},
-            HKD:{name:'Hong Kong Dollar',flag:'🇭🇰',region:'Asia & Pacific'},
-            TWD:{name:'Taiwan Dollar',flag:'🇹🇼',region:'Asia & Pacific'},
-            THB:{name:'Thai Baht',flag:'🇹🇭',region:'Asia & Pacific'},
-            MYR:{name:'Malaysian Ringgit',flag:'🇲🇾',region:'Asia & Pacific'},
-            IDR:{name:'Indonesian Rupiah',flag:'🇮🇩',region:'Asia & Pacific'},
-            PHP:{name:'Philippine Peso',flag:'🇵🇭',region:'Asia & Pacific'},
-            VND:{name:'Vietnamese Đồng',flag:'🇻🇳',region:'Asia & Pacific'},
-            PKR:{name:'Pakistani Rupee',flag:'🇵🇰',region:'Asia & Pacific'},
-            BDT:{name:'Bangladeshi Taka',flag:'🇧🇩',region:'Asia & Pacific'},
-            LKR:{name:'Sri Lankan Rupee',flag:'🇱🇰',region:'Asia & Pacific'},
-            AUD:{name:'Australian Dollar',flag:'🇦🇺',region:'Asia & Pacific'},
-            NZD:{name:'New Zealand Dollar',flag:'🇳🇿',region:'Asia & Pacific'},
-            AED:{name:'UAE Dirham',flag:'🇦🇪',region:'Middle East & Africa'},
-            SAR:{name:'Saudi Riyal',flag:'🇸🇦',region:'Middle East & Africa'},
-            QAR:{name:'Qatari Riyal',flag:'🇶🇦',region:'Middle East & Africa'},
-            KWD:{name:'Kuwaiti Dinar',flag:'🇰🇼',region:'Middle East & Africa'},
-            BHD:{name:'Bahraini Dinar',flag:'🇧🇭',region:'Middle East & Africa'},
-            ILS:{name:'Israeli Shekel',flag:'🇮🇱',region:'Middle East & Africa'},
-            EGP:{name:'Egyptian Pound',flag:'🇪🇬',region:'Middle East & Africa'},
-            ZAR:{name:'South African Rand',flag:'🇿🇦',region:'Middle East & Africa'},
-            NGN:{name:'Nigerian Naira',flag:'🇳🇬',region:'Middle East & Africa'},
-            KES:{name:'Kenyan Shilling',flag:'🇰🇪',region:'Middle East & Africa'},
-            MAD:{name:'Moroccan Dirham',flag:'🇲🇦',region:'Middle East & Africa'},
+            USD:{name:'US Dollar',flag:'🇺🇸',region:'Americas',sym:'$'},
+            CAD:{name:'Canadian Dollar',flag:'🇨🇦',region:'Americas',sym:'C$'},
+            MXN:{name:'Mexican Peso',flag:'🇲🇽',region:'Americas',sym:'MX$'},
+            BRL:{name:'Brazilian Real',flag:'🇧🇷',region:'Americas',sym:'R$'},
+            ARS:{name:'Argentine Peso',flag:'🇦🇷',region:'Americas',sym:'AR$'},
+            CLP:{name:'Chilean Peso',flag:'🇨🇱',region:'Americas',sym:'CL$'},
+            COP:{name:'Colombian Peso',flag:'🇨🇴',region:'Americas',sym:'CO$'},
+            PEN:{name:'Peruvian Sol',flag:'🇵🇪',region:'Americas',sym:'S/'},
+            EUR:{name:'Euro',flag:'🇪🇺',region:'Europe',sym:'€'},
+            GBP:{name:'British Pound',flag:'🇬🇧',region:'Europe',sym:'£'},
+            CHF:{name:'Swiss Franc',flag:'🇨🇭',region:'Europe',sym:'Fr'},
+            SEK:{name:'Swedish Krona',flag:'🇸🇪',region:'Europe',sym:'kr'},
+            NOK:{name:'Norwegian Krone',flag:'🇳🇴',region:'Europe',sym:'kr'},
+            DKK:{name:'Danish Krone',flag:'🇩🇰',region:'Europe',sym:'kr'},
+            PLN:{name:'Polish Złoty',flag:'🇵🇱',region:'Europe',sym:'zł'},
+            CZK:{name:'Czech Koruna',flag:'🇨🇿',region:'Europe',sym:'Kč'},
+            HUF:{name:'Hungarian Forint',flag:'🇭🇺',region:'Europe',sym:'Ft'},
+            RON:{name:'Romanian Leu',flag:'🇷🇴',region:'Europe',sym:'lei'},
+            TRY:{name:'Turkish Lira',flag:'🇹🇷',region:'Europe',sym:'₺'},
+            RUB:{name:'Russian Ruble',flag:'🇷🇺',region:'Europe',sym:'₽'},
+            UAH:{name:'Ukrainian Hryvnia',flag:'🇺🇦',region:'Europe',sym:'₴'},
+            ISK:{name:'Icelandic Króna',flag:'🇮🇸',region:'Europe',sym:'kr'},
+            JPY:{name:'Japanese Yen',flag:'🇯🇵',region:'Asia & Pacific',sym:'¥'},
+            CNY:{name:'Chinese Yuan',flag:'🇨🇳',region:'Asia & Pacific',sym:'¥'},
+            INR:{name:'Indian Rupee',flag:'🇮🇳',region:'Asia & Pacific',sym:'₹'},
+            KRW:{name:'South Korean Won',flag:'🇰🇷',region:'Asia & Pacific',sym:'₩'},
+            SGD:{name:'Singapore Dollar',flag:'🇸🇬',region:'Asia & Pacific',sym:'S$'},
+            HKD:{name:'Hong Kong Dollar',flag:'🇭🇰',region:'Asia & Pacific',sym:'HK$'},
+            TWD:{name:'Taiwan Dollar',flag:'🇹🇼',region:'Asia & Pacific',sym:'NT$'},
+            THB:{name:'Thai Baht',flag:'🇹🇭',region:'Asia & Pacific',sym:'฿'},
+            MYR:{name:'Malaysian Ringgit',flag:'🇲🇾',region:'Asia & Pacific',sym:'RM'},
+            IDR:{name:'Indonesian Rupiah',flag:'🇮🇩',region:'Asia & Pacific',sym:'Rp'},
+            PHP:{name:'Philippine Peso',flag:'🇵🇭',region:'Asia & Pacific',sym:'₱'},
+            VND:{name:'Vietnamese Đồng',flag:'🇻🇳',region:'Asia & Pacific',sym:'₫'},
+            PKR:{name:'Pakistani Rupee',flag:'🇵🇰',region:'Asia & Pacific',sym:'₨'},
+            BDT:{name:'Bangladeshi Taka',flag:'🇧🇩',region:'Asia & Pacific',sym:'৳'},
+            LKR:{name:'Sri Lankan Rupee',flag:'🇱🇰',region:'Asia & Pacific',sym:'Rs'},
+            AUD:{name:'Australian Dollar',flag:'🇦🇺',region:'Asia & Pacific',sym:'A$'},
+            NZD:{name:'New Zealand Dollar',flag:'🇳🇿',region:'Asia & Pacific',sym:'NZ$'},
+            AED:{name:'UAE Dirham',flag:'🇦🇪',region:'Middle East & Africa',sym:'د.إ'},
+            SAR:{name:'Saudi Riyal',flag:'🇸🇦',region:'Middle East & Africa',sym:'﷼'},
+            QAR:{name:'Qatari Riyal',flag:'🇶🇦',region:'Middle East & Africa',sym:'﷼'},
+            KWD:{name:'Kuwaiti Dinar',flag:'🇰🇼',region:'Middle East & Africa',sym:'د.ك'},
+            BHD:{name:'Bahraini Dinar',flag:'🇧🇭',region:'Middle East & Africa',sym:'BD'},
+            ILS:{name:'Israeli Shekel',flag:'🇮🇱',region:'Middle East & Africa',sym:'₪'},
+            EGP:{name:'Egyptian Pound',flag:'🇪🇬',region:'Middle East & Africa',sym:'E£'},
+            ZAR:{name:'South African Rand',flag:'🇿🇦',region:'Middle East & Africa',sym:'R'},
+            NGN:{name:'Nigerian Naira',flag:'🇳🇬',region:'Middle East & Africa',sym:'₦'},
+            KES:{name:'Kenyan Shilling',flag:'🇰🇪',region:'Middle East & Africa',sym:'KSh'},
+            MAD:{name:'Moroccan Dirham',flag:'🇲🇦',region:'Middle East & Africa',sym:'MAD'},
         };
 
         const ZERO_DECIMAL = new Set(['JPY','KRW','VND','IDR','CLP','HUF','ISK']);
@@ -286,16 +389,123 @@
             EGP:30.9,ZAR:18.65,NGN:900,KES:153,MAD:10.05,
         };
 
+        // ── State ──
         let fromCurrency = 'USD';
         let targets = ['EUR','GBP','JPY','CAD','INR'];
-        let amount = '1000';
+        let amount = '1';
         let pickerMode = null;
         let rates = { ...FALLBACK_RATES };
         let ratesLive = false;
         let lastUpdated = null;
+        let dragIdx = null;
+        let soundEnabled = true;
+        let isDark = true;
 
         const $ = id => document.getElementById(id);
 
+        // ── Sound & Haptics ──
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function playTick() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 800;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.08);
+            } catch (e) {}
+            haptic(10);
+        }
+
+        function playSwap() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 600;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.06, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.15);
+                // Second tone
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.frequency.value = 900;
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0.06, ctx.currentTime + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                osc2.start(ctx.currentTime + 0.08);
+                osc2.stop(ctx.currentTime + 0.2);
+            } catch (e) {}
+            haptic(20);
+        }
+
+        function playChime() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                [523, 659, 784].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = 'sine';
+                    const t = ctx.currentTime + i * 0.1;
+                    gain.gain.setValueAtTime(0.05, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                    osc.start(t);
+                    osc.stop(t + 0.3);
+                });
+            } catch (e) {}
+            haptic(30);
+        }
+
+        function haptic(ms) {
+            if (navigator.vibrate) navigator.vibrate(ms);
+        }
+
+        // ── Theme ──
+        function loadTheme() {
+            const saved = localStorage.getItem('currensor-theme');
+            if (saved === 'light') setTheme(false);
+            else setTheme(true);
+            const savedSound = localStorage.getItem('currensor-sound');
+            if (savedSound === 'off') { soundEnabled = false; $('soundToggle').textContent = '🔇'; $('soundToggle').classList.add('muted'); }
+        }
+
+        function setTheme(dark) {
+            isDark = dark;
+            if (dark) {
+                document.documentElement.removeAttribute('data-theme');
+                $('themeToggle').textContent = '☀️';
+                $('metaTheme').content = '#E8FF59';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                $('themeToggle').textContent = '🌙';
+                $('metaTheme').content = '#1A6B3C';
+            }
+            localStorage.setItem('currensor-theme', dark ? 'dark' : 'light');
+        }
+
+        // ── Fetch Rates ──
         async function fetchRates() {
             updateStatus('connecting');
             try {
@@ -306,12 +516,8 @@
                     for (const code of Object.keys(CURRENCIES)) {
                         if (data.rates[code]) rates[code] = data.rates[code];
                     }
-                    rates.USD = 1;
-                    ratesLive = true;
-                    lastUpdated = new Date();
-                    updateStatus('live');
-                    render();
-                    return;
+                    rates.USD = 1; ratesLive = true; lastUpdated = new Date();
+                    updateStatus('live'); playChime(); render(); return;
                 }
             } catch (e) {}
             try {
@@ -323,50 +529,40 @@
                         const lc = code.toLowerCase();
                         if (data.usd[lc]) rates[code] = data.usd[lc];
                     }
-                    rates.USD = 1;
-                    ratesLive = true;
-                    lastUpdated = new Date();
-                    updateStatus('live');
-                    render();
-                    return;
+                    rates.USD = 1; ratesLive = true; lastUpdated = new Date();
+                    updateStatus('live'); playChime(); render(); return;
                 }
             } catch (e) {}
-            ratesLive = false;
-            updateStatus('fallback');
-            render();
+            ratesLive = false; updateStatus('fallback'); render();
         }
 
         function updateStatus(state) {
             const badge = $('liveBadge');
             const text = $('liveText');
             badge.className = 'live-badge';
-            if (state === 'connecting') {
-                text.textContent = 'Connecting…';
-            } else if (state === 'live') {
+            if (state === 'connecting') { text.textContent = 'Connecting…'; }
+            else if (state === 'live') {
                 badge.classList.add('active');
-                const time = lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                text.textContent = `Live rates · ${time}`;
-            } else {
-                badge.classList.add('error');
-                text.textContent = 'Bundled rates · API unavailable';
-            }
+                text.textContent = `Live rates · ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            } else { badge.classList.add('error'); text.textContent = 'Bundled rates · API unavailable'; }
         }
 
+        // ── Formatting ──
         function formatNum(num, code) {
             if (num === 0) return '0.00';
             if (ZERO_DECIMAL.has(code)) return Math.round(num).toLocaleString();
-            if (num >= 1000) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            if (num >= 1) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-            return num.toFixed(6).replace(/0+$/, '').replace(/\.$/, '.00');
+            return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function convert(fromCode, toCode, amt) {
             return amt * ((rates[toCode] || 1) / (rates[fromCode] || 1));
         }
 
+        // ── Render ──
         function render() {
             const amt = parseFloat(amount) || 0;
-            $('fromFlag').textContent = CURRENCIES[fromCurrency].flag;
+            $('fromFlag').src = flagToImg(CURRENCIES[fromCurrency].flag);
+            $('fromFlag').alt = fromCurrency;
             $('fromCode').textContent = fromCurrency;
             $('resultsCount').textContent = `${targets.length} / 5`;
 
@@ -383,9 +579,12 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.style.animationDelay = `${0.05 + i * 0.06}s`;
+                card.draggable = true;
+                card.dataset.index = i;
                 card.innerHTML = `
+                    <span class="drag-handle" title="Drag to reorder">⠿</span>
                     <div class="result-left" data-index="${i}">
-                        <span class="result-flag">${cur.flag}</span>
+                        <img class="result-flag" src="${flagToImg(cur.flag)}" alt="${code}">
                         <div class="result-info">
                             <span class="result-code">${code}</span>
                             <span class="result-name">${cur.name}</span>
@@ -397,19 +596,60 @@
                     </div>
                     ${showRemove ? `<button class="result-remove" data-remove="${i}" title="Remove">✕</button>` : ''}
                 `;
+
+                // Desktop drag
+                card.addEventListener('dragstart', (e) => { dragIdx = i; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+                card.addEventListener('dragend', () => { dragIdx = null; card.classList.remove('dragging'); container.querySelectorAll('.result-card').forEach(c => { c.classList.remove('drag-over-above', 'drag-over-below'); }); });
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+                    if (dragIdx !== null && dragIdx !== i) {
+                        container.querySelectorAll('.result-card').forEach(c => { c.classList.remove('drag-over-above', 'drag-over-below'); });
+                        card.classList.add(dragIdx < i ? 'drag-over-below' : 'drag-over-above');
+                    }
+                });
+                card.addEventListener('dragleave', () => { card.classList.remove('drag-over-above', 'drag-over-below'); });
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    container.querySelectorAll('.result-card').forEach(c => { c.classList.remove('drag-over-above', 'drag-over-below'); });
+                    if (dragIdx !== null && dragIdx !== i) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(i, 0, moved); playTick(); render(); }
+                });
+
+                // Touch drag
+                let touchActive = false;
+                const handle = card.querySelector('.drag-handle');
+                handle.addEventListener('touchstart', (e) => { touchActive = true; dragIdx = i; card.classList.add('dragging'); e.preventDefault(); }, { passive: false });
+                handle.addEventListener('touchmove', (e) => {
+                    if (!touchActive) return; e.preventDefault();
+                    const touchY = e.touches[0].clientY;
+                    container.querySelectorAll('.result-card').forEach((c, ci) => {
+                        c.classList.remove('drag-over-above', 'drag-over-below');
+                        const rect = c.getBoundingClientRect();
+                        if (touchY > rect.top && touchY < rect.bottom && ci !== dragIdx) {
+                            c.classList.add(dragIdx < ci ? 'drag-over-below' : 'drag-over-above');
+                        }
+                    });
+                }, { passive: false });
+                handle.addEventListener('touchend', (e) => {
+                    if (!touchActive) return; touchActive = false; card.classList.remove('dragging');
+                    const touchY = e.changedTouches[0].clientY; let dropIdx = null;
+                    container.querySelectorAll('.result-card').forEach((c, ci) => {
+                        c.classList.remove('drag-over-above', 'drag-over-below');
+                        const rect = c.getBoundingClientRect();
+                        if (touchY > rect.top && touchY < rect.bottom && ci !== dragIdx) dropIdx = ci;
+                    });
+                    if (dropIdx !== null && dragIdx !== null && dropIdx !== dragIdx) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(dropIdx, 0, moved); playTick(); render(); }
+                    dragIdx = null;
+                });
+
                 container.appendChild(card);
             });
 
             $('addBtn').classList.toggle('hidden', targets.length >= 5);
-
-            container.querySelectorAll('.result-left').forEach(el => {
-                el.addEventListener('click', () => { pickerMode = parseInt(el.dataset.index); openPicker(); });
-            });
-            container.querySelectorAll('.result-remove').forEach(el => {
-                el.addEventListener('click', (e) => { e.stopPropagation(); targets.splice(parseInt(el.dataset.remove), 1); render(); });
-            });
+            container.querySelectorAll('.result-left').forEach(el => { el.addEventListener('click', () => { pickerMode = parseInt(el.dataset.index); playTick(); openPicker(); }); });
+            container.querySelectorAll('.result-remove').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); targets.splice(parseInt(el.dataset.remove), 1); playTick(); render(); }); });
         }
 
+        // ── Picker ──
         function openPicker() {
             $('pickerOverlay').classList.add('open');
             $('pickerSearch').value = '';
@@ -417,23 +657,21 @@
             setTimeout(() => $('pickerSearch').focus(), 100);
         }
 
-        function closePicker() {
-            $('pickerOverlay').classList.remove('open');
-            pickerMode = null;
-        }
+        function closePicker() { $('pickerOverlay').classList.remove('open'); pickerMode = null; }
 
         function createPickerItem(code, cur, inUse) {
             const isInUse = inUse.includes(code);
             const isCurrentSlot = (pickerMode === 'from' && code === fromCurrency) || (typeof pickerMode === 'number' && code === targets[pickerMode]);
-            const disabled = isInUse && !isCurrentSlot;
+            const disableForAdd = pickerMode === 'add' && isInUse;
             const item = document.createElement('div');
-            item.className = `picker-item${disabled ? ' disabled' : ''}`;
+            item.className = `picker-item${disableForAdd ? ' disabled' : ''}`;
+            const badgeText = disableForAdd ? 'in use' : (isInUse && !isCurrentSlot && pickerMode !== 'add' ? (code === fromCurrency ? 'source' : 'in use — will swap') : '');
             item.innerHTML = `
-                <span class="p-flag">${cur.flag}</span>
+                <img class="p-flag" src="${flagToImg(cur.flag)}" alt="${code}">
                 <div class="p-info"><div class="p-code">${code}</div><div class="p-name">${cur.name}</div></div>
-                ${disabled ? '<span class="p-badge">in use</span>' : ''}
+                ${badgeText ? `<span class="p-badge">${badgeText}</span>` : ''}
             `;
-            if (!disabled) item.addEventListener('click', () => selectCurrency(code));
+            if (!disableForAdd) item.addEventListener('click', () => { playSwap(); selectCurrency(code); });
             return item;
         }
 
@@ -442,23 +680,18 @@
             list.innerHTML = '';
             const inUse = [fromCurrency, ...targets];
             const q = filter.toLowerCase();
-
             const grouped = {};
             Object.entries(CURRENCIES).forEach(([code, cur]) => {
                 if (q && !code.toLowerCase().includes(q) && !cur.name.toLowerCase().includes(q)) return;
-                const region = cur.region;
-                if (!grouped[region]) grouped[region] = [];
-                grouped[region].push([code, cur]);
+                if (!grouped[cur.region]) grouped[cur.region] = [];
+                grouped[cur.region].push([code, cur]);
             });
-
             if (q) {
                 Object.values(grouped).flat().forEach(([code, cur]) => list.appendChild(createPickerItem(code, cur, inUse)));
             } else {
                 ['Americas','Europe','Asia & Pacific','Middle East & Africa'].forEach(region => {
                     if (!grouped[region] || !grouped[region].length) return;
-                    const label = document.createElement('div');
-                    label.className = 'picker-region';
-                    label.textContent = region;
+                    const label = document.createElement('div'); label.className = 'picker-region'; label.textContent = region;
                     list.appendChild(label);
                     grouped[region].forEach(([code, cur]) => list.appendChild(createPickerItem(code, cur, inUse)));
                 });
@@ -467,18 +700,168 @@
 
         function selectCurrency(code) {
             if (pickerMode === 'from') {
+                if (code === fromCurrency) { closePicker(); return; }
                 const idx = targets.indexOf(code);
                 if (idx !== -1) targets[idx] = fromCurrency;
                 fromCurrency = code;
+            } else if (pickerMode === 'add') {
+                if (code === fromCurrency || targets.includes(code)) { closePicker(); return; }
+                targets.push(code);
             } else if (typeof pickerMode === 'number') {
                 const idx = pickerMode;
+                if (code === targets[idx]) { closePicker(); return; }
                 if (code === fromCurrency) { fromCurrency = targets[idx]; targets[idx] = code; }
                 else { const oi = targets.indexOf(code); if (oi !== -1) targets[oi] = targets[idx]; targets[idx] = code; }
             }
-            closePicker();
-            render();
+            closePicker(); render();
         }
 
+        // ── Export / Copy ──
+        function buildCopyText() {
+            const amt = parseFloat(amount) || 0;
+            const fromSym = CURRENCIES[fromCurrency].sym;
+            let lines = [`💱 Currensor — Currency Conversion`, ``];
+            lines.push(`From: ${fromSym} ${amt > 0 ? formatNum(amt, fromCurrency) : '—'} ${fromCurrency}`);
+            lines.push(`─────────────────────`);
+            targets.forEach(code => {
+                const cur = CURRENCIES[code];
+                const converted = convert(fromCurrency, code, amt);
+                const unitRate = convert(fromCurrency, code, 1);
+                lines.push(`${cur.flag} ${code}  ${cur.sym} ${amt > 0 ? formatNum(converted, code) : '—'}  (1 ${fromCurrency} = ${cur.sym} ${formatNum(unitRate, code)})`);
+            });
+            lines.push(`─────────────────────`);
+            lines.push(``);
+            lines.push(`${ratesLive ? 'Live rates' : 'Bundled rates'}`);
+            lines.push(`kay0sstheory.github.io/Currensor`);
+            return lines.join('\n');
+        }
+
+        $('copyBtn').addEventListener('click', async () => {
+            const text = buildCopyText();
+            try {
+                await navigator.clipboard.writeText(text);
+                $('copyBtn').classList.add('copied');
+                $('copyBtn').innerHTML = '<span class="action-icon">✓</span> Copied!';
+                playTick();
+                setTimeout(() => { $('copyBtn').classList.remove('copied'); $('copyBtn').innerHTML = '<span class="action-icon">📋</span> Copy'; }, 2000);
+            } catch (e) {
+                // Fallback
+                const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                $('copyBtn').classList.add('copied');
+                $('copyBtn').innerHTML = '<span class="action-icon">✓</span> Copied!';
+                setTimeout(() => { $('copyBtn').classList.remove('copied'); $('copyBtn').innerHTML = '<span class="action-icon">📋</span> Copy'; }, 2000);
+            }
+        });
+
+        // ── Share Card ──
+        $('shareBtn').addEventListener('click', () => {
+            playTick();
+            generateShareCard();
+            $('shareOverlay').classList.add('open');
+        });
+
+        $('shareClose').addEventListener('click', () => { $('shareOverlay').classList.remove('open'); });
+        $('shareOverlay').addEventListener('click', (e) => { if (e.target === $('shareOverlay')) $('shareOverlay').classList.remove('open'); });
+
+        $('shareDownload').addEventListener('click', () => {
+            const canvas = $('shareCanvas');
+            const link = document.createElement('a');
+            link.download = 'currensor-conversion.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            playTick();
+        });
+
+        function generateShareCard() {
+            const canvas = $('shareCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = 600, h = 400;
+            canvas.width = w; canvas.height = h;
+
+            // Background
+            const bgColor = isDark ? '#0D0D0F' : '#F5F3EF';
+            const cardColor = isDark ? '#17171B' : '#FFFFFF';
+            const textColor = isDark ? '#E8E8EC' : '#1A1A1E';
+            const dimColor = isDark ? '#7A7A85' : '#8A8780';
+            const accentColor = isDark ? '#E8FF59' : '#1A6B3C';
+            const borderColor = isDark ? '#2A2A30' : '#E2DFD8';
+
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, w, h);
+
+            // Card background
+            const cardX = 24, cardY = 24, cardW = w - 48, cardH = h - 48, cardR = 16;
+            ctx.fillStyle = cardColor;
+            ctx.beginPath();
+            ctx.roundRect(cardX, cardY, cardW, cardH, cardR);
+            ctx.fill();
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Logo
+            ctx.font = 'bold 18px "Space Mono", monospace';
+            ctx.fillStyle = textColor;
+            ctx.fillText('Curren', 48, 68);
+            const logoW = ctx.measureText('Curren').width;
+            ctx.fillStyle = accentColor;
+            ctx.fillText('$', 48 + logoW, 68);
+            const dollarW = ctx.measureText('$').width;
+            ctx.fillStyle = textColor;
+            ctx.fillText('or', 48 + logoW + dollarW, 68);
+
+            // Amount from
+            const amt = parseFloat(amount) || 0;
+            ctx.font = 'bold 32px "Space Mono", monospace';
+            ctx.fillStyle = textColor;
+            ctx.fillText(`${formatNum(amt, fromCurrency)} ${fromCurrency}`, 48, 120);
+
+            // Divider
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(48, 140);
+            ctx.lineTo(w - 48, 140);
+            ctx.stroke();
+
+            // Target currencies
+            let y = 172;
+            targets.forEach(code => {
+                const cur = CURRENCIES[code];
+                const converted = convert(fromCurrency, code, amt);
+                const unitRate = convert(fromCurrency, code, 1);
+
+                ctx.font = 'bold 14px "Space Mono", monospace';
+                ctx.fillStyle = textColor;
+                ctx.fillText(`${code}`, 48, y);
+
+                ctx.font = '12px "DM Sans", sans-serif';
+                ctx.fillStyle = dimColor;
+                ctx.fillText(cur.name, 100, y);
+
+                ctx.font = 'bold 18px "Space Mono", monospace';
+                ctx.fillStyle = accentColor;
+                const amtText = amt > 0 ? formatNum(converted, code) : '—';
+                const amtWidth = ctx.measureText(amtText).width;
+                ctx.fillText(amtText, w - 48 - amtWidth, y);
+
+                ctx.font = '10px "Space Mono", monospace';
+                ctx.fillStyle = dimColor;
+                const rateText = `1 ${fromCurrency} = ${formatNum(unitRate, code)}`;
+                const rateWidth = ctx.measureText(rateText).width;
+                ctx.fillText(rateText, w - 48 - rateWidth, y + 16);
+
+                y += 44;
+            });
+
+            // Footer
+            ctx.font = '11px "DM Sans", sans-serif';
+            ctx.fillStyle = dimColor;
+            const footerText = ratesLive ? 'Live rates · kay0sstheory.github.io/Currensor' : 'Bundled rates · kay0sstheory.github.io/Currensor';
+            ctx.fillText(footerText, 48, h - 40);
+        }
+
+        // ── Input ──
         function filterAmountInput(value) {
             let f = '', d = false;
             for (const c of value) { if (c >= '0' && c <= '9') f += c; else if (c === '.' && !d) { f += c; d = true; } }
@@ -488,23 +871,32 @@
         $('amount').addEventListener('input', (e) => {
             const f = filterAmountInput(e.target.value);
             if (f !== e.target.value) e.target.value = f;
-            amount = f;
-            render();
+            amount = f; render();
+        });
+        $('amount').addEventListener('focus', (e) => { e.target.select(); });
+        $('amount').addEventListener('blur', (e) => {
+            if (e.target.value === '' || e.target.value === '0') { e.target.value = '1'; amount = '1'; render(); }
         });
 
-        $('fromBtn').addEventListener('click', () => { pickerMode = 'from'; openPicker(); });
-
-        $('addBtn').addEventListener('click', () => {
-            if (targets.length >= 5) return;
-            const inUse = new Set([fromCurrency, ...targets]);
-            const available = Object.keys(CURRENCIES).find(c => !inUse.has(c));
-            if (available) { targets.push(available); render(); }
-        });
+        $('fromBtn').addEventListener('click', () => { pickerMode = 'from'; playTick(); openPicker(); });
+        $('addBtn').addEventListener('click', () => { if (targets.length >= 5) return; pickerMode = 'add'; playTick(); openPicker(); });
 
         $('pickerOverlay').addEventListener('click', (e) => { if (e.target === $('pickerOverlay')) closePicker(); });
         $('pickerSearch').addEventListener('input', (e) => renderPickerList(e.target.value));
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicker(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePicker(); $('shareOverlay').classList.remove('open'); } });
 
+        // Theme & Sound toggles
+        $('themeToggle').addEventListener('click', () => { setTheme(!isDark); playTick(); });
+        $('soundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            $('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+            $('soundToggle').classList.toggle('muted', !soundEnabled);
+            localStorage.setItem('currensor-sound', soundEnabled ? 'on' : 'off');
+            if (soundEnabled) playTick();
+        });
+
+        // ── Init ──
+        loadTheme();
         render();
         fetchRates();
         setInterval(fetchRates, 5 * 60 * 1000);
