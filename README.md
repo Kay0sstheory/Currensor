@@ -16,7 +16,13 @@ A sleek currency converter you can self-host in seconds. Compare up to 5 currenc
 - **50 currencies** — Grouped by region (Americas, Europe, Asia & Pacific, Middle East & Africa)
 - **Multi-currency view** — See up to 5 conversions side by side
 - **Smart swap logic** — Picking a currency already in use auto-swaps instead of duplicating
-- **Bottom-sheet picker** — Mobile-friendly selector with instant search
+- **Drag to reorder** — Rearrange your target currencies by dragging the grip handle
+- **Dark & Light themes** — Trading terminal dark mode or clean travel app light mode, saved to your preference
+- **Sound & haptics** — Subtle audio feedback on interactions with a mute toggle
+- **Shareable conversion cards** — Generate a branded PNG image of your conversion to share anywhere
+- **Export / Copy** — One tap copies all conversions with currency symbols, ready to paste into WhatsApp, Slack, or email
+- **Bottom-sheet picker** — Mobile-friendly currency selector with instant search
+- **Cross-platform flags** — Twemoji flag images that render identically on every device
 - **Graceful fallback** — Bundled rates kick in if APIs are unavailable
 - **Zero dependencies** — One HTML file. No frameworks, no build step, no node_modules
 
@@ -35,32 +41,35 @@ Already live at **[kay0sstheory.github.io/Currensor](https://kay0sstheory.github
 ## Supported Currencies
 
 **Americas:** USD, CAD, MXN, BRL, ARS, CLP, COP, PEN
-
 **Europe:** EUR, GBP, CHF, SEK, NOK, DKK, PLN, CZK, HUF, RON, TRY, RUB, UAH, ISK
-
 **Asia & Pacific:** JPY, CNY, INR, KRW, SGD, HKD, TWD, THB, MYR, IDR, PHP, VND, PKR, BDT, LKR, AUD, NZD
-
 **Middle East & Africa:** AED, SAR, QAR, KWD, BHD, ILS, EGP, ZAR, NGN, KES, MAD
 
 ## Tech Stack
 
 - Pure HTML, CSS, JavaScript — no frameworks, no libraries
 - [Open Exchange Rates API](https://open.er-api.com/) (primary) + [Currency API](https://github.com/fawazahmed0/exchange-api) (backup)
+- Twemoji CDN for cross-platform flag rendering
 - DM Sans + Space Mono fonts via Google Fonts
-- Dark theme with noise texture and accent glow effects
+- Web Audio API for sound effects, Vibration API for haptics
+- Canvas API for shareable card generation
+- Dark/light themes via CSS variables with localStorage persistence
 - Mobile-responsive down to 360px viewport
 
 ## Version History
 
+- **v2.1** — Swap logic fix, drag-to-reorder, cross-platform Twemoji flags, bigger rate text, sound & haptics, dark/light theme toggle, shareable conversion cards, export/copy with currency symbols
 - **v2.0** — Live exchange rates, 50 currencies grouped by region, live status indicator, improved mobile UX
 - **v1.0** — Initial release with bundled rates and 20 currencies
 
 ## Roadmap
 
 - [ ] Interactive globe for selecting target currencies (v3)
+- [ ] Historical rate sparkline charts
+- [ ] Rate heatmap — weekly performance at a glance
+- [ ] Volatility indicator per currency pair
+- [ ] Purchasing power comparison
 - [ ] Shareable URLs with encoded conversion state
-- [ ] Light/dark theme toggle
-- [ ] Drag-to-reorder target currencies
 - [ ] Favorites saved to localStorage
 
 ## Why I Built This
