@@ -129,9 +129,6 @@
         .theme-toggle { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.85rem; line-height: 1; transition: border-color 0.2s, background 0.3s; color: var(--text); }
         .theme-toggle:hover { border-color: var(--accent); }
 
-        .sound-toggle { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.85rem; line-height: 1; transition: border-color 0.2s, background 0.3s, opacity 0.2s; color: var(--text); }
-        .sound-toggle:hover { border-color: var(--accent); }
-        .sound-toggle.muted { opacity: 0.4; }
 
         /* ── Source Section ── */
         .source-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; transition: background 0.4s, border-color 0.4s; }
@@ -255,7 +252,6 @@
                     <span class="live-dot"></span>
                     <span id="liveText">Connecting…</span>
                 </div>
-                <button class="sound-toggle" id="soundToggle" title="Toggle sounds">🔊</button>
                 <button class="theme-toggle" id="themeToggle" title="Toggle theme">☀️</button>
             </div>
         </div>
@@ -398,97 +394,15 @@
         let ratesLive = false;
         let lastUpdated = null;
         let dragIdx = null;
-        let soundEnabled = true;
         let isDark = true;
 
         const $ = id => document.getElementById(id);
-
-        // ── Sound & Haptics ──
-        let audioCtx = null;
-        function getAudioCtx() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            return audioCtx;
-        }
-
-        function playTick() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioCtx();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.frequency.value = 800;
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.08);
-            } catch (e) {}
-            haptic(10);
-        }
-
-        function playSwap() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioCtx();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.frequency.value = 600;
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.06, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + 0.15);
-                // Second tone
-                const osc2 = ctx.createOscillator();
-                const gain2 = ctx.createGain();
-                osc2.connect(gain2);
-                gain2.connect(ctx.destination);
-                osc2.frequency.value = 900;
-                osc2.type = 'sine';
-                gain2.gain.setValueAtTime(0.06, ctx.currentTime + 0.08);
-                gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                osc2.start(ctx.currentTime + 0.08);
-                osc2.stop(ctx.currentTime + 0.2);
-            } catch (e) {}
-            haptic(20);
-        }
-
-        function playChime() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioCtx();
-                [523, 659, 784].forEach((freq, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.frequency.value = freq;
-                    osc.type = 'sine';
-                    const t = ctx.currentTime + i * 0.1;
-                    gain.gain.setValueAtTime(0.05, t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-                    osc.start(t);
-                    osc.stop(t + 0.3);
-                });
-            } catch (e) {}
-            haptic(30);
-        }
-
-        function haptic(ms) {
-            if (navigator.vibrate) navigator.vibrate(ms);
-        }
 
         // ── Theme ──
         function loadTheme() {
             const saved = localStorage.getItem('currensor-theme');
             if (saved === 'light') setTheme(false);
             else setTheme(true);
-            const savedSound = localStorage.getItem('currensor-sound');
-            if (savedSound === 'off') { soundEnabled = false; $('soundToggle').textContent = '🔇'; $('soundToggle').classList.add('muted'); }
         }
 
         function setTheme(dark) {
@@ -517,7 +431,7 @@
                         if (data.rates[code]) rates[code] = data.rates[code];
                     }
                     rates.USD = 1; ratesLive = true; lastUpdated = new Date();
-                    updateStatus('live'); playChime(); render(); return;
+                    updateStatus('live'); render(); return;
                 }
             } catch (e) {}
             try {
@@ -530,7 +444,7 @@
                         if (data.usd[lc]) rates[code] = data.usd[lc];
                     }
                     rates.USD = 1; ratesLive = true; lastUpdated = new Date();
-                    updateStatus('live'); playChime(); render(); return;
+                    updateStatus('live'); render(); return;
                 }
             } catch (e) {}
             ratesLive = false; updateStatus('fallback'); render();
@@ -611,7 +525,7 @@
                 card.addEventListener('drop', (e) => {
                     e.preventDefault();
                     container.querySelectorAll('.result-card').forEach(c => { c.classList.remove('drag-over-above', 'drag-over-below'); });
-                    if (dragIdx !== null && dragIdx !== i) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(i, 0, moved); playTick(); render(); }
+                    if (dragIdx !== null && dragIdx !== i) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(i, 0, moved); render(); }
                 });
 
                 // Touch drag
@@ -637,7 +551,7 @@
                         const rect = c.getBoundingClientRect();
                         if (touchY > rect.top && touchY < rect.bottom && ci !== dragIdx) dropIdx = ci;
                     });
-                    if (dropIdx !== null && dragIdx !== null && dropIdx !== dragIdx) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(dropIdx, 0, moved); playTick(); render(); }
+                    if (dropIdx !== null && dragIdx !== null && dropIdx !== dragIdx) { const moved = targets.splice(dragIdx, 1)[0]; targets.splice(dropIdx, 0, moved); render(); }
                     dragIdx = null;
                 });
 
@@ -645,8 +559,8 @@
             });
 
             $('addBtn').classList.toggle('hidden', targets.length >= 5);
-            container.querySelectorAll('.result-left').forEach(el => { el.addEventListener('click', () => { pickerMode = parseInt(el.dataset.index); playTick(); openPicker(); }); });
-            container.querySelectorAll('.result-remove').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); targets.splice(parseInt(el.dataset.remove), 1); playTick(); render(); }); });
+            container.querySelectorAll('.result-left').forEach(el => { el.addEventListener('click', () => { pickerMode = parseInt(el.dataset.index); openPicker(); }); });
+            container.querySelectorAll('.result-remove').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); targets.splice(parseInt(el.dataset.remove), 1); render(); }); });
         }
 
         // ── Picker ──
@@ -671,7 +585,7 @@
                 <div class="p-info"><div class="p-code">${code}</div><div class="p-name">${cur.name}</div></div>
                 ${badgeText ? `<span class="p-badge">${badgeText}</span>` : ''}
             `;
-            if (!disableForAdd) item.addEventListener('click', () => { playSwap(); selectCurrency(code); });
+            if (!disableForAdd) item.addEventListener('click', () => { selectCurrency(code); });
             return item;
         }
 
@@ -742,7 +656,6 @@
                 await navigator.clipboard.writeText(text);
                 $('copyBtn').classList.add('copied');
                 $('copyBtn').innerHTML = '<span class="action-icon">✓</span> Copied!';
-                playTick();
                 setTimeout(() => { $('copyBtn').classList.remove('copied'); $('copyBtn').innerHTML = '<span class="action-icon">📋</span> Copy'; }, 2000);
             } catch (e) {
                 // Fallback
@@ -755,7 +668,6 @@
 
         // ── Share Card ──
         $('shareBtn').addEventListener('click', () => {
-            playTick();
             generateShareCard();
             $('shareOverlay').classList.add('open');
         });
@@ -769,8 +681,7 @@
             link.download = 'currensor-conversion.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-            playTick();
-        });
+            });
 
         function generateShareCard() {
             const canvas = $('shareCanvas');
@@ -878,22 +789,15 @@
             if (e.target.value === '' || e.target.value === '0') { e.target.value = '1'; amount = '1'; render(); }
         });
 
-        $('fromBtn').addEventListener('click', () => { pickerMode = 'from'; playTick(); openPicker(); });
-        $('addBtn').addEventListener('click', () => { if (targets.length >= 5) return; pickerMode = 'add'; playTick(); openPicker(); });
+        $('fromBtn').addEventListener('click', () => { pickerMode = 'from'; openPicker(); });
+        $('addBtn').addEventListener('click', () => { if (targets.length >= 5) return; pickerMode = 'add'; openPicker(); });
 
         $('pickerOverlay').addEventListener('click', (e) => { if (e.target === $('pickerOverlay')) closePicker(); });
         $('pickerSearch').addEventListener('input', (e) => renderPickerList(e.target.value));
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePicker(); $('shareOverlay').classList.remove('open'); } });
 
-        // Theme & Sound toggles
-        $('themeToggle').addEventListener('click', () => { setTheme(!isDark); playTick(); });
-        $('soundToggle').addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            $('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
-            $('soundToggle').classList.toggle('muted', !soundEnabled);
-            localStorage.setItem('currensor-sound', soundEnabled ? 'on' : 'off');
-            if (soundEnabled) playTick();
-        });
+        // Theme toggle
+        $('themeToggle').addEventListener('click', () => { setTheme(!isDark); });
 
         // ── Init ──
         loadTheme();
