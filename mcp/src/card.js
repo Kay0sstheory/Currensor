@@ -20,9 +20,10 @@ export const CARD_HTML = `<!doctype html>
     --text: #E8E8EC; --dim: #7A7A85; --input: #222228;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: transparent; }
+  /* Fill the host's frame edge to edge; a transparent page shows as a white band in some hosts. */
+  html, body { background: var(--bg); }
   body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); }
-  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-width: 560px; }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; width: 100%; }
   .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .brand { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
   .brand span { color: var(--accent); }
