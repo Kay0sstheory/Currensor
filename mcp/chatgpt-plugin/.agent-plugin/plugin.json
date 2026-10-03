@@ -9,9 +9,9 @@
   "interface": {
     "displayName": "Currensor",
     "shortDescription": "Live currency conversion",
-    "longDescription": "Convert any amount between 166 currencies at live mid-market rates. Ask in plain words, like \"250 CAD in rupees, euros and yen\", and Currensor shows an interactive card with every result side by side. Change the amount on the card and all currencies update instantly, with no new request. Rates refresh hourly from public rate services, with a backup source if one is down. No sign-in, no API key, and nothing about you is stored. Free and open source.",
+    "longDescription": "Convert any amount between 166 currencies at live mid-market rates. Ask in plain words, like \"250 CAD in rupees, euros and yen\", and Currensor shows an interactive card with every result side by side. Change the amount on the card and all currencies update instantly, with no new request. Rates refresh hourly from public rate services, with a backup source if one is down. No sign-in, no API key, and nothing about you is stored.",
     "developerName": "Kay0sstheory",
-    "category": "Productivity",
+    "category": "Finance",
     "websiteURL": "https://github.com/Kay0sstheory/Currensor",
     "supportURL": "https://github.com/Kay0sstheory/Currensor/issues",
     "privacyPolicyURL": "https://kay0sstheory.github.io/Currensor/privacy.html",
@@ -75,7 +75,8 @@
               "prompt": "Send 500 dollars to my brother in India"
             }
           ]
-        }
+        },
+        "demo_recording_url": "https://youtu.be/8yRNPmepvnA"
       },
       "publication": {
         "release_notes": "First release: live conversion for 166 currencies with an interactive, editable card."
