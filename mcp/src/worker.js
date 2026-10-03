@@ -2,6 +2,7 @@
 import { convert, formatAmount } from './convert.js';
 import { getUsdRates } from './rates.js';
 import { CARD_HTML, CARD_MIME, CARD_URI } from './card.js';
+import { clientFromUserAgent, recordUsage } from './usage.js';
 
 const SUPPORTED_PROTOCOLS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 const PUBLIC_ORIGIN = 'https://currensor-mcp.currensor-mcp.workers.dev';
@@ -177,7 +178,21 @@ async function respondTo(message, rateSource) {
     }
 }
 
-export async function handleMcpPost(request, rateSource = getUsdRates) {
+// Pair each incoming message with its reply and report the ones worth counting.
+function usageEvents(messages, replies) {
+    const events = [];
+    messages.forEach((message, index) => {
+        const result = replies[index]?.result;
+        if (message?.method === 'initialize' && result) events.push({ event: 'connect' });
+        if (message?.method === 'tools/call' && result?.structuredContent) {
+            const { from, results } = result.structuredContent;
+            events.push({ event: 'convert', from, to: results.map(r => r.code) });
+        }
+    });
+    return events;
+}
+
+export async function handleMcpPost(request, rateSource = getUsdRates, onUsage = () => {}) {
     let body;
     try {
         body = await request.json();
@@ -185,17 +200,25 @@ export async function handleMcpPost(request, rateSource = getUsdRates) {
         return json(rpcError(null, -32700, 'Parse error'), 400);
     }
     const isBatch = Array.isArray(body);
-    const replies = (await Promise.all((isBatch ? body : [body]).map(m => respondTo(m, rateSource)))).filter(Boolean);
+    const messages = isBatch ? body : [body];
+    const allReplies = await Promise.all(messages.map(m => respondTo(m, rateSource)));
+    for (const usage of usageEvents(messages, allReplies)) onUsage(usage);
+    const replies = allReplies.filter(Boolean);
     if (replies.length === 0) return new Response(null, { status: 202, headers: CORS_HEADERS });
     return json(isBatch ? replies : replies[0]);
 }
 
 export default {
-    async fetch(request) {
+    async fetch(request, env, context) {
         const url = new URL(request.url);
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
         if (url.pathname === '/mcp') {
-            if (request.method === 'POST') return handleMcpPost(request);
+            if (request.method === 'POST') {
+                const client = clientFromUserAgent(request.headers.get('User-Agent'));
+                return handleMcpPost(request, getUsdRates, usage =>
+                    context.waitUntil(recordUsage(env.USAGE, { client, ...usage })),
+                );
+            }
             // Stateless server: no server-initiated stream and no session to end.
             return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST', ...CORS_HEADERS } });
         }

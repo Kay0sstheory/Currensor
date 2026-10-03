@@ -54,3 +54,12 @@ test('every tool result carries each field its declared output schema requires',
         for (const field of schema.properties.results.items.required) assert.ok(field in row, `row missing ${field}`);
     }
 });
+
+test('connections and successful conversions are reported for counting, failures are not', async () => {
+    const seen = [];
+    const send = body => handleMcpPost(new Request('https://x/mcp', { method: 'POST', body: JSON.stringify(body) }), fakeRates, u => seen.push(u));
+    await send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } });
+    await send({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'convert_currency', arguments: { from: 'usd', to: ['inr'] } } });
+    await send({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'convert_currency', arguments: { from: 'USD', to: ['ZZZ'] } } });
+    assert.deepEqual(seen, [{ event: 'connect' }, { event: 'convert', from: 'USD', to: ['INR'] }]);
+});
