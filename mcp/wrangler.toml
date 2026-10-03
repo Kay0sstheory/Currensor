@@ -11,3 +11,7 @@ database_id = "90885285-73b9-485e-979e-132b7d6fb467"
 # Icon files served at /icon.png, /icon-256.png, /favicon.ico for app listings.
 [assets]
 directory = "public"
+
+[vars]
+# Token from the OpenAI plugin dashboard's domain check (public by design).
+OPENAI_APPS_CHALLENGE = "xd-Sj9G0JJfuBqVE9HEHJHeiFfeXjWha9I1UPb79Z4Q"
