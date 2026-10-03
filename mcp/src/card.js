@@ -109,9 +109,12 @@ export const CARD_HTML = `<!doctype html>
   function request(method, params) { var id = nextId++; send({ jsonrpc: '2.0', id: id, method: method, params: params }); return id; }
   function notify(method, params) { send({ jsonrpc: '2.0', method: method, params: params || {} }); }
 
+  // Hosts with a flexible width size the frame to whatever width we report, so ask for
+  // the full space they offer rather than our current (possibly narrow) width.
+  var container = {};
   function reportSize() {
-    var card = document.getElementById('card');
-    notify('ui/notifications/size-changed', { width: Math.ceil(card.scrollWidth), height: Math.ceil(document.body.scrollHeight) });
+    var width = container.width || container.maxWidth || Math.ceil(document.documentElement.clientWidth);
+    notify('ui/notifications/size-changed', { width: width, height: Math.ceil(document.body.scrollHeight) });
   }
 
   var initId = null;
@@ -121,6 +124,7 @@ export const CARD_HTML = `<!doctype html>
     if (message.id === initId && message.result) {
       var context = message.result.hostContext || {};
       applyTheme(context.theme);
+      container = context.containerDimensions || {};
       notify('ui/notifications/initialized');
       return;
     }
@@ -128,6 +132,7 @@ export const CARD_HTML = `<!doctype html>
       accept(message.params && message.params.structuredContent);
     } else if (message.method === 'ui/notifications/host-context-changed') {
       applyTheme(message.params && message.params.theme);
+      if (message.params && message.params.containerDimensions) { container = message.params.containerDimensions; reportSize(); }
     } else if (message.method === 'ui/resource-teardown' && message.id !== undefined) {
       send({ jsonrpc: '2.0', id: message.id, result: {} });
     }

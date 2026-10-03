@@ -88,7 +88,7 @@ function summaryText(conversion, updated) {
     const lines = conversion.results.map(
         r => `${formatAmount(conversion.amount, conversion.from)} ${conversion.from} = ${r.display} ${r.code}`,
     );
-    return `${lines.join('\n')}\n(Mid-market rates as of ${updated.slice(0, 10)}.)`;
+    return `${lines.join('\n')}\n(Mid-market rates as of ${updated.slice(0, 10)}. The user already sees these figures on an interactive card, so add context rather than repeating them.)`;
 }
 
 async function callConvert(args, rateSource) {
