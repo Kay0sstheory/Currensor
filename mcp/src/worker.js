@@ -150,6 +150,8 @@ async function handleMessage(message, rateSource) {
                             'openai/widgetPrefersBorder': false,
                             // ChatGPT gives the card its own sandbox origin from this; required for directory submission.
                             'openai/widgetDomain': PUBLIC_ORIGIN,
+                            // The card loads nothing from outside; declaring that turns ChatGPT's sandbox rules on.
+                            'openai/widgetCSP': { connect_domains: [], resource_domains: [] },
                             'openai/widgetDescription': 'Live currency conversion card with an editable amount.',
                         },
                     },
