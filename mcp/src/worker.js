@@ -71,7 +71,7 @@ const TOOLS = [
             },
             required: ['amount', 'from', 'fromName', 'fromFlag', 'zeroDecimal', 'results', 'updated', 'source'],
         },
-        annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+        annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: true, idempotentHint: true },
         _meta: CARD_LINK,
     },
 ];
