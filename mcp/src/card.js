@@ -110,7 +110,7 @@ export const CARD_HTML = `<!doctype html>
   function notify(method, params) { send({ jsonrpc: '2.0', method: method, params: params || {} }); }
 
   // Report the width we were given: Claude already sizes the frame to the full chat width,
-  // and asking for more (its maxWidth) made it drop the size update and collapse the card.
+  // and reporting its maxWidth instead left the card at zero height there.
   var container = {};
   function reportSize() {
     var width = Math.ceil(document.documentElement.clientWidth);
