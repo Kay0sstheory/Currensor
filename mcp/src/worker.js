@@ -21,7 +21,7 @@ const TOOLS = [
         title: 'Convert currency',
         description:
             'Convert an amount from one currency into one or more others at live market rates, shown as an interactive card. ' +
-            'Use ISO 4217 codes (USD, EUR, INR, JPY…). Covers about 160 currencies, refreshed hourly.',
+            'Use ISO 4217 codes (USD, EUR, INR, JPY…). Covers 166 currencies, refreshed hourly.',
         inputSchema: {
             type: 'object',
             properties: {

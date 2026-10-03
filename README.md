@@ -6,7 +6,32 @@ A sleek currency converter you can self-host in seconds. Compare up to 5 currenc
 ![No Dependencies](https://img.shields.io/badge/Dependencies-None-blue?style=flat-square&labelColor=0D0D0F)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square&labelColor=0D0D0F)
 
-**[→ Try it live](https://kay0sstheory.github.io/Currensor/)**
+**[→ Try it live](https://kay0sstheory.github.io/Currensor/)** · **[→ Use it inside Claude or ChatGPT](#use-it-inside-claude-or-chatgpt)**
+
+---
+
+## Use it inside Claude or ChatGPT
+
+Currensor also runs as a plugin (an MCP server) for Claude and ChatGPT. Ask for a conversion in plain words and a live Currensor card appears right in the chat. Change the amount on the card and every currency updates instantly.
+
+<img src="docs/claude-card.png" alt="Currensor card inside a Claude chat" width="600">
+
+**Plugin address:**
+
+```
+https://currensor-mcp.currensor-mcp.workers.dev/mcp
+```
+
+| App | How to add it |
+|---|---|
+| **Claude** | Settings → Connectors → Add custom connector → paste the address → choose *No sign-in* |
+| **ChatGPT** | Settings → Plugins → Developer mode on, then **+** → Create custom MCP server → paste the address → *No Auth* |
+
+Then ask: *"Use Currensor to convert 250 CAD to INR, EUR and JPY."*
+
+- Live mid-market rates for 166 currencies, refreshed hourly, with a backup rate feed
+- No sign-in, no API key, nothing about you stored. The server keeps only anonymous daily counts (which app, which currency pair) to see if people find it useful
+- Free and open source: the server is in [`mcp/`](mcp/) and runs on Cloudflare Workers
 
 ---
 
@@ -18,7 +43,6 @@ A sleek currency converter you can self-host in seconds. Compare up to 5 currenc
 - **Smart swap logic** — Picking a currency already in use auto-swaps instead of duplicating
 - **Drag to reorder** — Rearrange your target currencies by dragging the grip handle
 - **Dark & Light themes** — Trading terminal dark mode or clean travel app light mode, saved to your preference
-- **Sound & haptics** — Subtle audio feedback on interactions with a mute toggle
 - **Shareable conversion cards** — Generate a branded PNG image of your conversion to share anywhere
 - **Export / Copy** — One tap copies all conversions with currency symbols, ready to paste into WhatsApp, Slack, or email
 - **Bottom-sheet picker** — Mobile-friendly currency selector with instant search
@@ -51,14 +75,14 @@ Already live at **[kay0sstheory.github.io/Currensor](https://kay0sstheory.github
 - [Open Exchange Rates API](https://open.er-api.com/) (primary) + [Currency API](https://github.com/fawazahmed0/exchange-api) (backup)
 - Twemoji CDN for cross-platform flag rendering
 - DM Sans + Space Mono fonts via Google Fonts
-- Web Audio API for sound effects, Vibration API for haptics
 - Canvas API for shareable card generation
 - Dark/light themes via CSS variables with localStorage persistence
 - Mobile-responsive down to 360px viewport
 
 ## Version History
 
-- **v2.1** — Swap logic fix, drag-to-reorder, cross-platform Twemoji flags, bigger rate text, sound & haptics, dark/light theme toggle, shareable conversion cards, export/copy with currency symbols
+- **v2.2** — Claude & ChatGPT plugin with an in-chat card; refreshed backup rates
+- **v2.1** — Swap logic fix, drag-to-reorder, cross-platform Twemoji flags, bigger rate text, dark/light theme toggle, shareable conversion cards, export/copy with currency symbols
 - **v2.0** — Live exchange rates, 50 currencies grouped by region, live status indicator, improved mobile UX
 - **v1.0** — Initial release with bundled rates and 20 currencies
 
