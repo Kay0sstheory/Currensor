@@ -4,6 +4,7 @@ import { getUsdRates } from './rates.js';
 import { CARD_HTML, CARD_MIME, CARD_URI } from './card.js';
 
 const SUPPORTED_PROTOCOLS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
+const PUBLIC_ORIGIN = 'https://currensor-mcp.currensor-mcp.workers.dev';
 const SERVER_INFO = { name: 'currensor', title: 'Currensor', version: '1.0.0' };
 
 const CARD_LINK = {
@@ -147,6 +148,8 @@ async function handleMessage(message, rateSource) {
                         _meta: {
                             ui: { prefersBorder: false, csp: { connectDomains: [], resourceDomains: [] } },
                             'openai/widgetPrefersBorder': false,
+                            // ChatGPT gives the card its own sandbox origin from this; required for directory submission.
+                            'openai/widgetDomain': PUBLIC_ORIGIN,
                             'openai/widgetDescription': 'Live currency conversion card with an editable amount.',
                         },
                     },
