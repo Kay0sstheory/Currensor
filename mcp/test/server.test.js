@@ -42,3 +42,15 @@ test('the card is served as an MCP Apps resource', async () => {
     assert.equal(reply.result.contents[0].mimeType, 'text/html;profile=mcp-app');
     assert.match(reply.result.contents[0].text, /ui\/initialize/);
 });
+
+test('every tool result carries each field its declared output schema requires', async () => {
+    const list = await (await post({ jsonrpc: '2.0', id: 4, method: 'tools/list' })).json();
+    const schema = list.result.tools[0].outputSchema;
+    const reply = await (await post({ jsonrpc: '2.0', id: 5, method: 'tools/call',
+        params: { name: 'convert_currency', arguments: { amount: 5, from: 'EUR', to: ['USD', 'INR'] } } })).json();
+    const data = reply.result.structuredContent;
+    for (const field of schema.required) assert.ok(field in data, `missing ${field}`);
+    for (const row of data.results) {
+        for (const field of schema.properties.results.items.required) assert.ok(field in row, `row missing ${field}`);
+    }
+});
