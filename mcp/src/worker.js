@@ -6,7 +6,13 @@ import { clientFromUserAgent, recordUsage } from './usage.js';
 
 const SUPPORTED_PROTOCOLS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 const PUBLIC_ORIGIN = 'https://currensor-mcp.currensor-mcp.workers.dev';
-const SERVER_INFO = { name: 'currensor', title: 'Currensor', version: '1.0.0' };
+const SERVER_INFO = {
+    name: 'currensor',
+    title: 'Currensor',
+    version: '1.0.0',
+    websiteUrl: 'https://github.com/Kay0sstheory/Currensor',
+    icons: [{ src: `${PUBLIC_ORIGIN}/icon.png`, mimeType: 'image/png', sizes: ['512x512'] }],
+};
 
 const CARD_LINK = {
     ui: { resourceUri: CARD_URI },

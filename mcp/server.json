@@ -3,7 +3,7 @@
   "name": "io.github.Kay0sstheory/currensor",
   "title": "Currensor",
   "description": "Live currency conversion for 166 currencies, shown as an interactive in-chat card. No sign-in.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "websiteUrl": "https://github.com/Kay0sstheory/Currensor",
   "repository": {
     "url": "https://github.com/Kay0sstheory/Currensor",
@@ -14,6 +14,15 @@
     {
       "type": "streamable-http",
       "url": "https://currensor-mcp.currensor-mcp.workers.dev/mcp"
+    }
+  ],
+  "icons": [
+    {
+      "src": "https://currensor-mcp.currensor-mcp.workers.dev/icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
     }
   ]
 }

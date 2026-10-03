@@ -7,3 +7,7 @@ compatibility_date = "2026-09-01"
 binding = "USAGE"
 database_name = "currensor-usage"
 database_id = "90885285-73b9-485e-979e-132b7d6fb467"
+
+# Icon files served at /icon.png, /icon-256.png, /favicon.ico for app listings.
+[assets]
+directory = "public"
