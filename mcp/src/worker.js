@@ -228,6 +228,11 @@ export default {
             // Stateless server: no server-initiated stream and no session to end.
             return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST', ...CORS_HEADERS } });
         }
+        if (url.pathname === '/.well-known/openai-apps-challenge') {
+            // OpenAI's domain check: the token from the plugin dashboard, set in wrangler.toml [vars].
+            if (!env.OPENAI_APPS_CHALLENGE) return new Response('Not found', { status: 404 });
+            return new Response(env.OPENAI_APPS_CHALLENGE, { headers: { 'Content-Type': 'text/plain' } });
+        }
         if (url.pathname === '/') {
             return new Response('Currensor MCP server. Connect your AI app to /mcp.\nhttps://github.com/Kay0sstheory/Currensor\n', {
                 headers: { 'Content-Type': 'text/plain; charset=utf-8' },

@@ -1,0 +1,77 @@
+{
+  "name": "currensor",
+  "version": "1.0.0",
+  "description": "Live currency conversion for 166 currencies, shown as an interactive card with an editable amount.",
+  "author": { "name": "Kay0sstheory", "url": "https://github.com/Kay0sstheory" },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Currensor",
+        "shortDescription": "Live currency conversion",
+        "longDescription": "Convert any amount between 166 currencies at live mid-market rates. Ask in plain words, like \"250 CAD in rupees, euros and yen\", and Currensor shows an interactive card with every result side by side. Change the amount on the card and all currencies update instantly, with no new request. Rates refresh hourly from public rate services, with a backup source if one is down. No sign-in, no API key, and nothing about you is stored. Free and open source.",
+        "developerName": "Kay0sstheory",
+        "category": "Productivity",
+        "websiteURL": "https://github.com/Kay0sstheory/Currensor",
+        "supportURL": "https://github.com/Kay0sstheory/Currensor/issues",
+        "privacyPolicyURL": "https://kay0sstheory.github.io/Currensor/privacy.html",
+        "termsOfServiceURL": "https://kay0sstheory.github.io/Currensor/terms.html",
+        "logo": "./assets/logo.png",
+        "screenshots": ["./assets/screenshot-card.png"]
+      },
+      "review": {
+        "commerce": false,
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Converts one amount into several currencies and shows the card",
+              "prompt": "Convert 250 CAD to INR, EUR and JPY",
+              "tools_triggered": ["convert_currency"],
+              "expected_behavior": "Calls convert_currency with amount 250, from CAD, to INR, EUR and JPY. A Currensor card shows three rows with live converted values and the rate for each; JPY has no decimals."
+            },
+            {
+              "description": "Understands currency names instead of codes",
+              "prompt": "How much is 100 US dollars in British pounds?",
+              "tools_triggered": ["convert_currency"],
+              "expected_behavior": "Calls convert_currency with from USD and to GBP. The card shows the GBP value of 100 USD."
+            },
+            {
+              "description": "Defaults the amount to 1 when only a rate is asked for",
+              "prompt": "What's the euro to Indian rupee exchange rate today?",
+              "tools_triggered": ["convert_currency"],
+              "expected_behavior": "Calls convert_currency from EUR to INR (amount 1 or omitted). The card shows how many rupees one euro buys."
+            },
+            {
+              "description": "Handles a travel budget across many currencies",
+              "prompt": "I have 2000 Australian dollars for a trip. What is that in Thai baht, Singapore dollars, Japanese yen and Indonesian rupiah?",
+              "tools_triggered": ["convert_currency"],
+              "expected_behavior": "Calls convert_currency from AUD to THB, SGD, JPY and IDR with amount 2000. The card shows four rows; the user can type a new amount on the card and every row updates."
+            },
+            {
+              "description": "Reports an unsupported currency clearly",
+              "prompt": "Convert 50 USD to XYZ",
+              "tools_triggered": ["convert_currency"],
+              "expected_behavior": "convert_currency returns an error saying XYZ is an unknown currency; the assistant tells the user the code is not recognised and asks which currency they meant."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Not a currency conversion; Currensor gives no investment advice",
+              "prompt": "Should I buy Bitcoin or Ethereum right now?"
+            },
+            {
+              "description": "Historical rates are not supported; Currensor only has current rates",
+              "prompt": "What was the USD to EUR rate on 1 January 2015?"
+            },
+            {
+              "description": "Moving money is out of scope; Currensor cannot send or exchange funds",
+              "prompt": "Send 500 dollars to my brother in India"
+            }
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "First release: live conversion for 166 currencies with an interactive, editable card."
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "currensor": {
+      "type": "streamable-http",
+      "url": "https://currensor-mcp.currensor-mcp.workers.dev/mcp"
+    }
+  }
+}
