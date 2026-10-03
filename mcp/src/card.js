@@ -109,11 +109,11 @@ export const CARD_HTML = `<!doctype html>
   function request(method, params) { var id = nextId++; send({ jsonrpc: '2.0', id: id, method: method, params: params }); return id; }
   function notify(method, params) { send({ jsonrpc: '2.0', method: method, params: params || {} }); }
 
-  // Hosts with a flexible width size the frame to whatever width we report, so ask for
-  // the full space they offer rather than our current (possibly narrow) width.
+  // Report the width we were given: Claude already sizes the frame to the full chat width,
+  // and asking for more (its maxWidth) made it drop the size update and collapse the card.
   var container = {};
   function reportSize() {
-    var width = container.width || container.maxWidth || Math.ceil(document.documentElement.clientWidth);
+    var width = Math.ceil(document.documentElement.clientWidth);
     notify('ui/notifications/size-changed', { width: width, height: Math.ceil(document.body.scrollHeight) });
   }
 
