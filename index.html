@@ -284,7 +284,7 @@
 
         <div class="footer">
             <div class="footer-text">Built by <a href="https://github.com/Kay0sstheory" target="_blank">Kay0sstheory</a> — Powered by curiosity</div>
-            <div class="footer-sub">v2.1 — Live rates refresh every 5 min</div>
+            <div class="footer-sub">v2.1 — Rates update daily</div>
         </div>
     </div>
 
@@ -432,7 +432,7 @@
                     for (const code of Object.keys(CURRENCIES)) {
                         if (data.rates[code]) rates[code] = data.rates[code];
                     }
-                    rates.USD = 1; ratesLive = true; lastUpdated = new Date();
+                    rates.USD = 1; ratesLive = true; lastUpdated = new Date(data.time_last_update_unix * 1000);
                     updateStatus('live'); render(); return;
                 }
             } catch (e) {}
@@ -445,7 +445,7 @@
                         const lc = code.toLowerCase();
                         if (data.usd[lc]) rates[code] = data.usd[lc];
                     }
-                    rates.USD = 1; ratesLive = true; lastUpdated = new Date();
+                    rates.USD = 1; ratesLive = true; lastUpdated = new Date(data.date + 'T00:00:00Z');
                     updateStatus('live'); render(); return;
                 }
             } catch (e) {}
@@ -459,7 +459,7 @@
             if (state === 'connecting') { text.textContent = 'Connecting…'; }
             else if (state === 'live') {
                 badge.classList.add('active');
-                text.textContent = `Live rates · ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                text.textContent = `Rates as of ${lastUpdated.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
             } else { badge.classList.add('error'); text.textContent = 'Bundled rates · API unavailable'; }
         }
 
