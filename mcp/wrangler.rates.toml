@@ -1,0 +1,14 @@
+# Hourly rates service (npm run deploy:rates). Feeds the website now, and the plugin
+# once the store reviews are done. Secret: OXR_APP_ID (wrangler secret put -c wrangler.rates.toml).
+name = "currensor-rates"
+main = "src/rates-worker.js"
+compatibility_date = "2026-09-01"
+
+[[kv_namespaces]]
+binding = "RATES"
+id = "f6b4398034964fcea4b08661c06c12a8"
+
+# Five past the hour: Open Exchange Rates publishes on the hour. 24 calls a day stays
+# well inside the free plan's 1,000 a month.
+[triggers]
+crons = ["5 * * * *"]

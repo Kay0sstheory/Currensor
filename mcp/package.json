@@ -9,7 +9,9 @@
     "deploy": "wrangler deploy",
     "test": "node --test test/*.test.js",
     "usage": "sh scripts/usage-report.sh",
-    "migrate": "wrangler d1 migrations apply currensor-usage --remote"
+    "migrate": "wrangler d1 migrations apply currensor-usage --remote",
+    "deploy:rates": "wrangler deploy -c wrangler.rates.toml",
+    "refresh:rates": "curl -s 'https://currensor-rates.currensor-mcp.workers.dev/rates' | head -c 300"
   },
   "devDependencies": {
     "wrangler": "^4.147.0"
