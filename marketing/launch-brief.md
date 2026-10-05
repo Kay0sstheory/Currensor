@@ -62,3 +62,5 @@ First reply:
 
 ## Launch log
 - 2026-10-05 — X post live with the portrait video (final wording: "Just shipped Currensor 💱", feature list, both links, #OpenSource #CurrencyConverter #MCP): https://x.com/kartiknv/status/2107012081694453792
+- 2026-10-05 — LinkedIn post live (portrait video, Claude-first, links in first comment): https://lnkd.in/p/g8mjZRNn
+- 2026-10-05 — Directories: Glama already lists it automatically (from the MCP Registry); PulseMCP submissions paused, auto-adds from the registry when it reopens; Smithery + mcp.so = Kay to submit.
