@@ -32,7 +32,7 @@ Context for anyone (human or AI) helping write launch posts. Last updated 2026-1
 - Card screenshot in repo: `docs/claude-card.png`.
 
 ## Launch plan
-- Now: free AI-tool directories (Smithery, Glama, mcp.so, PulseMCP); X and LinkedIn "here's what I built" posts.
+- Now: free AI-tool directories (Smithery, Glama, mcp.so, PulseMCP); LinkedIn "here's what I built" post. X posted 2026-10-05 (see Launch log).
 - After both stores approve: X + LinkedIn with store links, Reddit (Claude / ChatGPT / MCP communities),
   Hacker News "Show HN", Product Hunt.
 - Angles that work: the card living inside the chat is the surprise; "free, no sign-up" earns trust.
@@ -59,3 +59,6 @@ First reply:
 > Claude and ChatGPT store listings are in review.
 >
 > Code: github.com/Kay0sstheory/Currensor
+
+## Launch log
+- 2026-10-05 — X post live with the portrait video (final wording: "Just shipped Currensor 💱", feature list, both links, #OpenSource #CurrencyConverter #MCP): https://x.com/kartiknv/status/2107012081694453792
