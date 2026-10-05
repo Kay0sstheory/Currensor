@@ -3,10 +3,10 @@
 Context for anyone (human or AI) helping write launch posts. Last updated 2026-10-04.
 
 ## What it is
-- A free, open-source currency converter: 50 currencies, live rates, no sign-up, no tracking.
-- Web app: https://kay0sstheory.github.io/Currensor/ (single `index.html`, works on phone).
+- A free, open-source currency converter with live rates, no sign-up, no tracking.
+- Web app: https://kay0sstheory.github.io/Currensor/ (single `index.html`, 50 currencies, works on phone).
 - Also runs **inside Claude and ChatGPT** as an MCP app: ask a money question and a live
-  converter card appears in the chat. Changing the amount on the card updates as you type.
+  converter card appears in the chat (166 currencies). Changing the amount on the card updates as you type.
 - One small server (Cloudflare Workers, free tier) serves both Claude and ChatGPT.
 - Public MCP endpoint: `https://currensor-mcp.currensor-mcp.workers.dev/mcp`
 - Listed in the official MCP Registry as `io.github.Kay0sstheory/currensor`.
