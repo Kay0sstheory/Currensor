@@ -66,3 +66,4 @@ First reply:
 - 2026-10-05 — Directories: Glama already lists it automatically (from the MCP Registry); PulseMCP submissions paused, auto-adds from the registry when it reopens; Smithery + mcp.so = Kay to submit.
 - 2026-10-05 — Smithery listing live: https://smithery.ai/servers/venkatknukala/currensor (68/100 at publish; description/homepage/icon still to fill in Settings)
 - 2026-10-05 — mcp.so: web form is paid-only ($39, skipped); free request filed on GitHub: https://github.com/chatmcp/mcpso/issues/4784 (their free queue is slow: ~200 open, 1 handled in 4 days)
+- 2026-10-05 — Smithery listing completed (name, description, homepage, icon): score 100/100
