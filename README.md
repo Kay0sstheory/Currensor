@@ -29,7 +29,7 @@ https://currensor-mcp.currensor-mcp.workers.dev/mcp
 
 Then ask: *"Use Currensor to convert 250 CAD to INR, EUR and JPY."*
 
-- Live mid-market rates for 166 currencies, refreshed hourly, with a backup rate feed
+- Live mid-market rates for 166 currencies, refreshed daily, with a backup rate feed
 - No sign-in, no API key, nothing about you stored. The server keeps only anonymous daily counts (which app, which currency pair) to see if people find it useful
 - Free and open source: the server is in [`mcp/`](mcp/) and runs on Cloudflare Workers
 
@@ -37,7 +37,7 @@ Then ask: *"Use Currensor to convert 250 CAD to INR, EUR and JPY."*
 
 ## Features
 
-- **Live exchange rates** — Fetched from open APIs with auto-refresh every 5 minutes
+- **Live exchange rates** — Updated hourly; the page checks again just after each update, and falls back to two daily public feeds if the hourly service is down
 - **50 currencies** — Grouped by region (Americas, Europe, Asia & Pacific, Middle East & Africa)
 - **Multi-currency view** — See up to 5 conversions side by side
 - **Smart swap logic** — Picking a currency already in use auto-swaps instead of duplicating
@@ -72,7 +72,7 @@ Already live at **[kay0sstheory.github.io/Currensor](https://kay0sstheory.github
 ## Tech Stack
 
 - Pure HTML, CSS, JavaScript — no frameworks, no libraries
-- [Open Exchange Rates API](https://open.er-api.com/) (primary) + [Currency API](https://github.com/fawazahmed0/exchange-api) (backup)
+- Hourly rates service on Cloudflare Workers (primary, source in [`mcp/`](mcp/)) + [Open Exchange Rates API](https://open.er-api.com/) and [Currency API](https://github.com/fawazahmed0/exchange-api) (daily backups)
 - Twemoji CDN for cross-platform flag rendering
 - DM Sans + Space Mono fonts via Google Fonts
 - Canvas API for shareable card generation

@@ -422,6 +422,7 @@
         }
 
         // ── Fetch Rates ──
+        // Returns the hourly service's update time when it answered, otherwise null.
         async function fetchRates() {
             updateStatus('connecting');
             // Our own hourly service first; the two public daily feeds stay as backups.
@@ -434,7 +435,7 @@
                         if (data.rates[code]) rates[code] = data.rates[code];
                     }
                     rates.USD = 1; ratesLive = true; lastUpdated = new Date(data.updated);
-                    updateStatus('live'); render(); return;
+                    updateStatus('live'); render(); return lastUpdated;
                 }
             } catch (e) {}
             try {
@@ -446,7 +447,7 @@
                         if (data.rates[code]) rates[code] = data.rates[code];
                     }
                     rates.USD = 1; ratesLive = true; lastUpdated = new Date(data.time_last_update_unix * 1000);
-                    updateStatus('live'); render(); return;
+                    updateStatus('live'); render(); return null;
                 }
             } catch (e) {}
             try {
@@ -459,10 +460,27 @@
                         if (data.usd[lc]) rates[code] = data.usd[lc];
                     }
                     rates.USD = 1; ratesLive = true; lastUpdated = new Date(data.date + 'T00:00:00Z');
-                    updateStatus('live'); render(); return;
+                    updateStatus('live'); render(); return null;
                 }
             } catch (e) {}
-            ratesLive = false; updateStatus('fallback'); render();
+            ratesLive = false; updateStatus('fallback'); render(); return null;
+        }
+
+        // Check again just after the hourly service's next update instead of on a fixed timer,
+        // so rates stay fresh without repeat calls. On a backup feed, retry the hourly service soon.
+        const HOUR_MS = 60 * 60 * 1000;
+        const RETRY_MS = 5 * 60 * 1000;
+        const AFTER_UPDATE_MS = 2 * 60 * 1000;
+
+        function nextRefreshDelay(hourlyUpdatedAt) {
+            if (!hourlyUpdatedAt) return RETRY_MS;
+            const untilNextUpdate = hourlyUpdatedAt.getTime() + HOUR_MS + AFTER_UPDATE_MS - Date.now();
+            return Math.min(Math.max(untilNextUpdate, RETRY_MS), HOUR_MS + AFTER_UPDATE_MS);
+        }
+
+        async function refreshRatesOnSchedule() {
+            const hourlyUpdatedAt = await fetchRates();
+            setTimeout(refreshRatesOnSchedule, nextRefreshDelay(hourlyUpdatedAt));
         }
 
         function updateStatus(state) {
@@ -817,8 +835,7 @@
         // ── Init ──
         loadTheme();
         render();
-        fetchRates();
-        setInterval(fetchRates, 5 * 60 * 1000);
+        refreshRatesOnSchedule();
     </script>
 </body>
 </html>
