@@ -63,3 +63,21 @@ test('connections and successful conversions are reported for counting, failures
     await send({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'convert_currency', arguments: { from: 'USD', to: ['ZZZ'] } } });
     assert.deepEqual(seen, [{ event: 'connect' }, { event: 'convert', from: 'USD', to: ['INR'] }]);
 });
+
+const worker = (await import('../src/worker.js')).default;
+const visit = (accept, path = '/mcp') =>
+    worker.fetch(new Request(`https://x${path}`, { headers: { Accept: accept } }), {}, { waitUntil() {} });
+
+test('someone opening the connector link in a browser gets a page pointing to the web app', async () => {
+    const response = await visit('text/html,application/xhtml+xml,*/*;q=0.8');
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('Content-Type'), /text\/html/);
+    const page = await response.text();
+    assert.match(page, /kay0sstheory\.github\.io\/Currensor/);
+    assert.match(page, /Add custom connector/);
+});
+
+test('an AI app asking the connector for a stream is still told only POST works', async () => {
+    const response = await visit('text/event-stream');
+    assert.equal(response.status, 405);
+});

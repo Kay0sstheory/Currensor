@@ -214,6 +214,40 @@ export async function handleMcpPost(request, rateSource = getUsdRates, onUsage =
     return json(isBatch ? replies : replies[0]);
 }
 
+const LANDING_PAGE = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Currensor connector</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#0f1115;color:#e8e8e8;display:flex;min-height:100vh;align-items:center;justify-content:center}
+main{max-width:34rem;padding:2rem 1rem;line-height:1.55}
+h1{font-size:1.6rem;margin:0 0 .5rem}
+a.button{display:inline-block;margin:1rem 0;padding:.8rem 1.4rem;border-radius:8px;background:#2f9e6f;color:#fff;text-decoration:none;font-weight:600}
+code{background:#1d2129;padding:.15rem .4rem;border-radius:4px;word-break:break-all}
+ol{padding-left:1.2rem}
+.muted{color:#9aa0a6;font-size:.9rem}
+</style></head><body><main>
+<h1>Curren$or</h1>
+<p>This address is Currensor's connector for AI chats. It works when you paste it into Claude or ChatGPT, not when you open it in a browser.</p>
+<a class="button" href="https://kay0sstheory.github.io/Currensor/">Try the web version</a>
+<p><strong>Use it inside Claude:</strong></p>
+<ol>
+<li>Open Settings → Connectors → Add custom connector.</li>
+<li>Paste <code>https://currensor-mcp.currensor-mcp.workers.dev/mcp</code></li>
+<li>Ask something like "What's 250 CAD in rupees, euros and yen?"</li>
+</ol>
+<p class="muted">Free and open source · <a href="https://github.com/Kay0sstheory/Currensor" style="color:#9aa0a6">Code on GitHub</a></p>
+</main></body></html>
+`;
+
+// Browsers ask for HTML; AI apps ask for JSON or an event stream.
+function wantsWebPage(request) {
+    return request.method === 'GET' && (request.headers.get('Accept') || '').includes('text/html');
+}
+
+function landingPage() {
+    return new Response(LANDING_PAGE, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+}
+
 export default {
     async fetch(request, env, context) {
         const url = new URL(request.url);
@@ -225,6 +259,8 @@ export default {
                     context.waitUntil(recordUsage(env.USAGE, { client, ...usage })),
                 );
             }
+            // People click this address in posts; give them a way in instead of an error.
+            if (wantsWebPage(request)) return landingPage();
             // Stateless server: no server-initiated stream and no session to end.
             return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST', ...CORS_HEADERS } });
         }
@@ -234,6 +270,7 @@ export default {
             return new Response(env.OPENAI_APPS_CHALLENGE, { headers: { 'Content-Type': 'text/plain' } });
         }
         if (url.pathname === '/') {
+            if (wantsWebPage(request)) return landingPage();
             return new Response('Currensor MCP server. Connect your AI app to /mcp.\nhttps://github.com/Kay0sstheory/Currensor\n', {
                 headers: { 'Content-Type': 'text/plain; charset=utf-8' },
             });
