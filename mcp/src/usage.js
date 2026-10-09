@@ -3,8 +3,12 @@
 const INCREMENT_SQL = `INSERT INTO daily_usage (day, client, event, currency_pair, count) VALUES (?, ?, ?, ?, 1)
 ON CONFLICT (day, client, event, currency_pair) DO UPDATE SET count = count + 1`;
 
+const ROBOT_SIGNS = /bot\b|bot\/|crawler|spider|scanner|python|aiohttp|httpx|curl\/|wget|go-http|axios|headless/;
+
 export function clientFromUserAgent(userAgent) {
     const agent = String(userAgent || '').toLowerCase();
+    // Checked first: crawlers like ClaudeBot and GPTBot carry an app's name but no person is behind them.
+    if (ROBOT_SIGNS.test(agent)) return 'robot';
     if (agent.includes('claude') || agent.includes('anthropic')) return 'claude';
     if (agent.includes('openai') || agent.includes('chatgpt')) return 'chatgpt';
     return 'other';
