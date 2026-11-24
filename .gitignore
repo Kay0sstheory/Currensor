@@ -4,3 +4,9 @@ statuslogs/
 .DS_Store
 video/out/
 BACKLOG.md
+
+# Store submission files and screenshots: kept locally, never in the public repo
+*.zip
+FireShot*.png
+currensor-conversion.png
+currensor-icon-256.png
