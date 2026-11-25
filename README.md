@@ -6,6 +6,8 @@ A sleek currency converter you can self-host in seconds. Compare up to 5 currenc
 ![No Dependencies](https://img.shields.io/badge/Dependencies-None-blue?style=flat-square&labelColor=0D0D0F)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square&labelColor=0D0D0F)
 
+[![Currensor MCP server](https://mcprush.com/badge/currensor-mcp/card.svg)](https://mcprush.com/to/currensor-mcp?ref=badge)
+
 **[→ Try it live](https://kay0sstheory.github.io/Currensor/)** · **[→ Use it inside Claude or ChatGPT](#use-it-inside-claude-or-chatgpt)**
 
 ---
