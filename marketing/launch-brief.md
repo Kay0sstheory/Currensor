@@ -110,3 +110,4 @@ LinkedIn first comment: the same three links as the X reply.
 - 2026-10-05 — mcp.so: web form is paid-only ($39, skipped); free request filed on GitHub: https://github.com/chatmcp/mcpso/issues/4784 (their free queue is slow: ~200 open, 1 handled in 4 days)
 - 2026-10-05 — Smithery listing completed (name, description, homepage, icon): score 100/100
 - 2026-11-24 — ChatGPT store launch: X thread with video https://x.com/kartiknv/status/2125409660568318417 ; LinkedIn post with video (6 impressions at first check; links comment added by Claude same day).
+- 2026-11-25 check — Nov 24 X thread: 13 views, 0 likes, 0 outside replies (2 replies = Kay's own thread post). Nov 24 LinkedIn: 57 impressions, 2 reactions, 1 comment. Oct 5 posts to date — X: 165 views, 7 likes, 3 replies; LinkedIn: 375 impressions, 7 reactions, 2 comments. README now carries the mcprush grade-A badge (f3e9714).
